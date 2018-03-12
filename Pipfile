@@ -1,0 +1,37 @@
+[[source]]
+
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[dev-packages]
+
+"flake8" = "*"
+isort = "*"
+werkzeug = "*"
+pyopenssl = "*"
+factory-boy = "<3.0,>=2.9"
+"flake8-isort" = "*"
+"flake8-builtins" = "*"
+"flake8-comprehensions" = "*"
+ipdb = "*"
+responses = "*"
+django-debug-toolbar = "*"
+
+
+[packages]
+
+django = "==2.0.2"
+dj-database-url = "*"
+gunicorn = "*"
+whitenoise = "*"
+django-extensions = "*"
+social-auth-app-django = "==2.1.0"
+"psycopg2-binary" = ">=2.7.4<2.8"
+channels = ">=2.0.2<2.1"
+
+
+[requires]
+
+python_version = "3.6"
