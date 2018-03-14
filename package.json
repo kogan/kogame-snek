@@ -1,0 +1,34 @@
+{
+  "name": "kogame",
+  "version": "1.0.0",
+  "description": "Django Channels game",
+  "main": "index.js",
+  "dependencies": {
+    "prop-types": "^15.6.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.11"
+  },
+  "scripts": {
+    "dev": "webpack --watch --mode development",
+    "build": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kogan/kogame.git"
+  },
+  "author": "Kogan.com",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/kogan/kogame/issues"
+  },
+  "homepage": "https://github.com/kogan/kogame#readme"
+}

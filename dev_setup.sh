@@ -14,4 +14,9 @@ docker-compose run --rm django ./manage.py createsuperuser
 echo "Starting webserver"
 docker-compose up -d django
 
+echo "Installing javascript dependencies"
+npm install
+echo "Building frontend assets"
+npm run build
+
 echo "Server is now running at http://localhost:8001/"

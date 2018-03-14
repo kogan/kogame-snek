@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Pycharm
+/.idea/
+
+/node_modules/
+/static/js/

@@ -22,14 +22,16 @@ django-debug-toolbar = "*"
 
 [packages]
 
-django = "==2.0.2"
+django = ">=2.0,<2.1"
 dj-database-url = "*"
 gunicorn = "*"
 whitenoise = "*"
 django-extensions = "*"
 social-auth-app-django = "==2.1.0"
-"psycopg2-binary" = ">=2.7.4<2.8"
-channels = ">=2.0.2<2.1"
+"psycopg2-binary" = ">=2.7.4,<2.8"
+channels = ">=2.0,<2.1"
+channels-redis = ">=2.1,<2.2"
+service-identity = "*"
 
 
 [requires]

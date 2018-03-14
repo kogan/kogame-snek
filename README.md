@@ -1,1 +1,21 @@
-# kogame
+# Kogame
+
+Kogame - pronounced with 3 syllables - is a Django Channels real-time or turn-based game platform
+
+
+# Dev setup
+
+Prerequisites:
+
+- docker >= 17.0
+- docker-compose >= 1.8.0
+- nodejs >= 7.0
+- npm >= 3.10
+
+To setup the development environment, run the setup script:
+
+```
+./dev_setup.sh
+```
+
+It will ask you to create a superuser.
