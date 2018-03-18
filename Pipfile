@@ -30,7 +30,7 @@ django-extensions = "*"
 social-auth-app-django = "==2.1.0"
 "psycopg2-binary" = ">=2.7.4,<2.8"
 channels = ">=2.0,<2.1"
-channels-redis = ">=2.1,<2.2"
+channels-redis = "*"
 service-identity = "*"
 
 

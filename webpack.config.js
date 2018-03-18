@@ -7,6 +7,15 @@ module.exports = {
   entry: {
     main: './index',
   },
+  resolve: {
+    // Allow absolute paths in imports, e.g. import Button from 'components/Button'
+    // Keep in sync with .eslintrc
+    modules: [
+      path.resolve(__dirname, 'src'),
+      path.resolve(__dirname, 'node_modules'),
+    ],
+    extensions: ['.js', '.jsx'],
+  },
   module: {
     rules: [
       {
