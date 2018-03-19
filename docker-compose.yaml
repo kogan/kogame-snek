@@ -28,3 +28,14 @@ services:
     links:
       - postgres
       - redis
+
+  jenkins:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    user: "1000"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+      - redis

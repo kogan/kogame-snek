@@ -1,0 +1,59 @@
+{
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true,
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true,
+    "jest": true
+  },
+  "globals": {
+    "React": true
+  },
+  "plugins": [
+    "react"
+  ],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js",".jsx"],
+        "paths": ["src"]
+      }
+    },
+    "import/ignore": [
+      "node_modules",
+      "\\.(scss|css|svg|json)$"
+    ],
+    "react": {
+      // Regex for Component Factory to use, default to "createClass"
+      "createClass": "createClass",
+      // Pragma to use, default to "React"
+      "pragma": "React",
+      // React version, default to the latest React stable release
+      "version": "16.0"
+    }
+  },
+  "rules": {
+    "strict": 0, // class field (a.k.a. property initializer) syntax - ie using arrow functions in classes instead of bind - Stage 2 proposal
+    "semi": [2, "never"],
+    "comma-dangle": [2, "always-multiline"],
+    "max-len": ["error", 120, 2],
+    "id-length": 0,
+    "new-cap": [2, { "capIsNewExceptions": ["AND"] }],
+    "no-multiple-empty-lines": [2, {"max": 1}],
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/prefer-stateless-function": [0, { "ignorePureComponents": true }],
+    "react/forbid-prop-types": [0, { "forbid": [] }],
+    "react/jsx-pascal-case": [2, { "allowAllCaps": true }],
+    "react/no-find-dom-node": 1,
+    "import/no-extraneous-dependencies": [2, { "devDependencies": true }]
+  },
+  "extends": [ "eslint:recommended", "plugin:react/recommended", "airbnb"]
+}

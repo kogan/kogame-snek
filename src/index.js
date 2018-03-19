@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ReactDom from 'react-dom'
-import ChatContainer from 'containers/ChatContainer'
+import ChatContainer from './containers/ChatContainer/index'
 
 class App extends Component {
   render() {
