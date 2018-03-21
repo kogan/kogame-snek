@@ -6,6 +6,7 @@ docker-compose kill
 # clean up
 docker-compose rm -fv
 
+docker-compose build --no-cache --force-rm django
 docker-compose run --rm django ./manage.py migrate
 
 echo "Please create a super user."
