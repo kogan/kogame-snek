@@ -6,14 +6,14 @@ docker-compose kill
 # clean up
 docker-compose rm -fv
 
-docker-compose build --no-cache --force-rm django
-docker-compose run --rm django ./manage.py migrate
+docker-compose build --no-cache --force-rm kogame
+docker-compose run --rm kogame ./manage.py migrate
 
 echo "Please create a super user."
-docker-compose run --rm django ./manage.py createsuperuser
+docker-compose run --rm kogame ./manage.py createsuperuser
 
-echo "Starting webserver"
-docker-compose up -d django
+echo "Starting app server"
+docker-compose up -d kogame
 
 echo "Installing javascript dependencies"
 npm install
