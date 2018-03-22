@@ -2,11 +2,20 @@
   "name": "kogame",
   "version": "1.0.0",
   "description": "Django Channels game",
-  "main": "index.js",
+  "main": "index.jsx",
   "dependencies": {
+    "axios": "^0.17.0",
+    "babel-polyfill": "^6.26.0",
+    "css-loader": "^0.28.7",
     "prop-types": "^15.6.1",
+    "node-sass": "^4.5.3",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
+    "redux-promise": "^0.5.3",
+    "redux-thunk": "^2.2.0",
+    "sass-loader": "^6.0.6"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -15,11 +24,15 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
+    "clean-webpack-plugin": "^0.1.19",
     "eslint": "^4.19.0",
     "eslint-config-airbnb": "^16.1.0",
+    "eslint-import-resolver-webpack": "^0.8.3",
     "eslint-plugin-import": "^2.9.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.7.0",
+    "mini-css-extract-plugin": "^0.2.0",
+    "style-loader": "^0.19.1",
     "webpack": "^4.1.1",
     "webpack-cli": "^2.0.11"
   },

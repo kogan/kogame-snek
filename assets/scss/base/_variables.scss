@@ -1,0 +1,16 @@
+$primary_color: #ed193a;
+$primary_color--contrast: darken($primary_color, 10%);
+$secondary_color: #518dd6;
+$secondary_color--contrast: darken($secondary_color, 10%);
+$border_color: #e1e1e1;
+$text_color: #555;
+$background_color: #eee;
+
+$images : "images";
+
+// when does the desktop layout kick in. here its binary, either below this value of above, no tablet design
+$desktop_trigger : 980px;
+$tablet_trigger : 640px;
+$mobile_trigger : 320px;
+
+$grid_gutter : 30px;

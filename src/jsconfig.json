@@ -1,0 +1,13 @@
+// this file is used to drive intellisense in vscode
+{
+  "compilerOptions": {
+    "target": "ES6"
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "js",
+    "js/libs"
+  ]
+}

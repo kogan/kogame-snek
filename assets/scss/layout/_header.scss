@@ -1,0 +1,15 @@
+.l-hd {
+  overflow: auto;
+  clear: both;
+  padding: $grid_gutter 0 0 0;
+  .l-pg--width {
+    border-bottom: 1px solid $border_color;
+    margin-bottom: $grid_gutter;
+    padding-bottom: $grid_gutter;
+  }
+  h2 {
+    overflow: hidden;
+    margin: 0 0 $grid_gutter 0;
+    padding-top: $grid_gutter/2;
+  }
+}

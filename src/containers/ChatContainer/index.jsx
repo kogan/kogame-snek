@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
+import styles from './styles.scss'
 
 class ChatContainer extends Component {
   static propTypes = {
@@ -49,7 +50,7 @@ class ChatContainer extends Component {
 
   render() {
     return (
-      <div>
+      <div className={styles.test}>
         <textarea id="chat-log" cols="100" rows="20" /><br />
         <input id="chat-message-input" type="text" size="100" /><br />
         <button id="chat-message-submit" type="button">Send</button>

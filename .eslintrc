@@ -21,12 +21,9 @@
     "react"
   ],
   "settings": {
-    "import/resolver": {
-      "node": {
-        "extensions": [".js",".jsx"],
-        "paths": ["src"]
-      }
-    },
+    "import/resolver": "webpack",
+    "extensions": [".js",".jsx"],
+    "paths": ["./src/"],
     "import/ignore": [
       "node_modules",
       "\\.(scss|css|svg|json)$"

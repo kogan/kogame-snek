@@ -1,0 +1,6 @@
+//non-media query media query : http://seesparkbox.com/foundry/structuring_and_serving_styles_for_older_browsers
+@mixin query($breakpoint, $ignore: false ) {
+  @media screen and (min-width: $breakpoint) {
+    @content;
+  }
+}
