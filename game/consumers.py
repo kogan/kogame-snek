@@ -43,17 +43,18 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         )
 
     # Receive message from Websocket
-    async def receive(self, text):
-        log.info('Receive TEXT: %s', text)
-        content = json.loads(text)
-        direction = content['direction']
+    async def receive(self, text_data=None, bytes_data=None):
+        log.info('Receive TEXT: %s', text_data)
+        content = json.loads(text_data)
+        update = content['updateObj']
+        direction = update['direction']
         await self.channel_layer.send(
             'game_engine',
-            json.dumps({
+            {
                 'type': 'player.direction',
                 'player': 'me',
                 'direction': direction,
-            })
+            }
         )
 
     # Send game data to room group after a Tick is processed
@@ -80,8 +81,14 @@ class GameConsumer(SyncConsumer):
         log.info('Player direction changed: %s', event)
         direction = event.get('direction', 'UP')
 
+        try:
+            direction = Direction[direction]
+        except KeyError:
+            log.info('Bad Direction! %s', direction)
+            return
+
         set_player_direction(
             self.game,
             event.get('player', 'Player 1'),
-            Direction[direction]
+            direction,
         )
