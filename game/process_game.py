@@ -1,5 +1,7 @@
 import logging
 
+from .models import Board
+
 log = logging.getLogger(__name__)
 
 
@@ -26,4 +28,4 @@ def process_game_state(game):
     board = Board.objects.create(state=new_state, game=game)
 
     # successful update
-    return True
+    return board
