@@ -148,9 +148,16 @@ def add_food(game, state):
 
 
 def process_new_players(game, state):
-    player = get_queued_player(game)
-    if not player:
+    username = get_queued_player(game)
+    if not username:
         return state
+
+    dead = next((player for player in state.players if player.username == username), None)
+    if dead:
+        log.info('Found dead snake for %s, removing.', username)
+        state.players.remove(dead)
+
+    log.info('Trying to add new snake for %s', username)
 
     board = game.current_board
 
@@ -173,11 +180,13 @@ def process_new_players(game, state):
     # into queue and wait for next tick (could be costly looping and checking)
     set_snake = set(snake)
     for player in state.players:
-        if set(player.snake) & set_snake:
+        if player.alive and set(player.snake) & set_snake:
+            log.info('New snake was created on existing snake for %s', username)
             # collision, put player back in queue
             join_queue(game, player, at_front=True)
             return state
 
-    p = Player(username=player, snake=snake, alive=True, direction=direction)
+    p = Player(username=username, snake=snake, alive=True, direction=direction)
     state.players.append(p)
+    log.info('New snake added for %s', username)
     return state
