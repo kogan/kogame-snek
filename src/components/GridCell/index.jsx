@@ -16,9 +16,23 @@ const GridCell = ({ size, cellType, bodyType }) => {
       cellClassName = ''
   }
 
+  let bodyTypeClassName = ''
+  switch (bodyType) {
+    case 'head':
+      bodyTypeClassName = styles.bodyHead
+      break
+    case 'tail':
+      bodyTypeClassName = styles.bodyTail
+      break
+    case 'body':
+      bodyTypeClassName = styles.bodyDefault
+      break
+    default:
+      bodyTypeClassName = ''
+  }
   return (
     <div
-      className={`${styles.cellStyle} ${cellClassName}`}
+      className={`${styles.cellStyle} ${cellClassName} ${bodyTypeClassName}`}
       style={{ height: `${size}px`, width: `${size}px` }}
     />
   )
