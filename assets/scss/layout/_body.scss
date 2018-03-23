@@ -1,15 +1,16 @@
 :global {
+  body {
+    background: black;
+  }
+
   .l-pg {
     &--width {
-      background: tomato;
       margin: 0 $grid_gutter;
       @include query($tablet_trigger) {
         margin: auto;
-        background: beige;
         width: $tablet_trigger;
       }
       @include query($desktop_trigger) {
-        background: tan;
         width: $desktop_trigger;
       }
     }

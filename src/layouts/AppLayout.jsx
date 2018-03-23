@@ -7,6 +7,8 @@ import HeaderLayout from './HeaderLayout'
 import BodyLayout from './BodyLayout'
 import FooterLayout from './FooterLayout'
 
+import styles from './styles.scss'
+
 // Container is a react component that gets bonded with application state
 class AppLayout extends PureComponent {
   constructor(props) {
@@ -43,7 +45,7 @@ class AppLayout extends PureComponent {
     }
 
     return (
-      <div className="l-home">
+      <div className={styles.appLayout}>
         <HeaderLayout />
         <BodyLayout>
           <SnekContainer
