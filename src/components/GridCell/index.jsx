@@ -18,7 +18,7 @@ const GridCell = ({ size, cellType }) => {
 
   return (
     <div
-      className={cellClassName}
+      className={`${styles.cellStyle} ${cellClassName}`}
       style={{ height: `${size}px`, width: `${size}px` }}
     />
   )

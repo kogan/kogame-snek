@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import Snek from 'components/Snek'
 import GridCell from 'components/GridCell'
 import { KEYS } from './constants'
 import styles from './styles.scss'
@@ -65,6 +64,9 @@ class SnekContainer extends Component {
     const numCols = dimensions[0]
     const renderedGridCells = []
 
+    const layoutWidth = dimensions[1] * numRows
+    const layoutHeight = dimensions[0] * numCols
+
     for (let row = 0; row < numRows; row += 1) {
       const currentRow = []
       for (let col = 0; col < numCols; col += 1) {
@@ -91,7 +93,6 @@ class SnekContainer extends Component {
     for (let row = 0; row < numRows; row += 1) {
       for (let col = 0; col < numCols; col += 1) {
         const cellObject = cells[row][col]
-        console.log(cellObject)
         renderedGridCells.push(<GridCell size={cellSize} cellType={cellObject.cellType} />)
       }
     }
@@ -101,9 +102,9 @@ class SnekContainer extends Component {
         role="presentation"
         className={styles.boardLayout}
         onKeyDown={this.setDirection}
+        stystyle={{ height: `${layoutHeight}px`, width: `${layoutWidth}px` }}
       >
         {renderedGridCells}
-        <Snek />
       </div>
     )
   };

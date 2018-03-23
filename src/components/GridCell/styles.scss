@@ -1,8 +1,17 @@
 :local {
   .snek {
-    width: 20px;
-    height: 20px;
     position: absolute;
     background-color: green;
+  }
+  .food {
+    background: green;
+  }
+  .snake {
+    background: red;
+  }
+  .cellStyle {
+    border: 1px solid #555;
+    float: left;
+    box-sizing: border-box;
   }
 }
