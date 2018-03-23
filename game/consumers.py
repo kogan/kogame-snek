@@ -1,16 +1,51 @@
+import json
 import logging
 
-from channels.consumer import SyncConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 log = logging.getLogger(__name__)
 
 
-class TestConsumer(SyncConsumer):
-    def websocket_connect(self, event):
-        self.send({'type': 'websocket.accept'})
+class GameConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.room_name = 'snek'
+        self.room_group_name = '{}_game'.format(self.room_name)
 
-    def websocket_disconnect(self, event):
-        pass
+        # Join game
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
 
-    def websocket_receive(self, event):
-        pass
+    async def disconnect(self):
+
+        # Leave game
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    # Receive message from Websocket
+    async def receive(self, direction):
+
+        # Send direction update to room group
+        await self.send(text_data=json.dumps({
+            'direction': direction,
+        }))
+
+    # Send game data to room group after a Tick is processed
+    async def game_update(self, event):
+
+        # TODO - add information processed from Tick
+        data = event
+        players = '1'
+        board = '2'
+        leaderboard = '3'
+
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'players': players,
+            'board': board,
+            'leaderboard': leaderboard,
+        }))
