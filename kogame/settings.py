@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # local apps
     'game',
     'chat',
+    'social_auth',
     # Authentication
     'social_django',
 ]
@@ -140,6 +141,9 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = 'home'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
