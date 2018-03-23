@@ -1,10 +1,30 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { COMPONENT_TITLE } from './constants'
+import styles from './styles.scss'
 
-function SnekContainer() {
-  return <h2 className="">{COMPONENT_TITLE} Just Another Generic Container</h2>
+class SnekContainer extends Component {
+  static propTypes = {};
+
+  static defaultProps = {};
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      players: [],
+    }
+  }
+
+  renderBoard = () => (
+    <div className={styles.boardLayout}>
+      <h2 className="">{COMPONENT_TITLE} Just Another Generic Container</h2>
+    </div>
+  )
+
+  render() {
+    return this.renderBoard()
+  }
 }
 
 function mapStateToProps(state) {
