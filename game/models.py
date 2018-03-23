@@ -3,6 +3,9 @@ from django.db import models
 
 
 class Game(models.Model):
+
+    growth_factor = 2  # How much to grow if we eat food
+
     started = models.DateTimeField(auto_now_add=True)
     tick = models.PositiveIntegerField()
 
@@ -11,8 +14,15 @@ class Game(models.Model):
             self.pk, self.tick, self.started
         )
 
+    @property
+    def current_board(self):
+        return self.board_list.order_by('-tick').first()
+
 
 class Board(models.Model):
+
+    dimensions = [50,50]
+
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     tick = models.PositiveIntegerField()
     state = JSONField()
