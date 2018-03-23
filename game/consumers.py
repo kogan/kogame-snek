@@ -1,13 +1,11 @@
 import json
 import logging
 
-from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.consumer import SyncConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .engine import GameEngine
+from .engine import Direction, GameEngine, join_queue, set_player_direction
 from .models import Board, Game
-
-from .players import Direction, set_player_direction
 
 log = logging.getLogger(__name__)
 
@@ -80,6 +78,7 @@ class GameConsumer(SyncConsumer):
 
     def player_new(self, event):
         log.info('Player Joined: %s', event['player'])
+        join_queue(self.game, event['player'])
 
     def player_direction(self, event):
         log.info('Player direction changed: %s', event)

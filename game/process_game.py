@@ -1,7 +1,10 @@
 import logging
 import random
 
-from .players import Direction
+from .engine import (
+    Coords, Direction, Player, State, get_player_directions, get_queued_player,
+    join_queue,
+)
 
 log = logging.getLogger(__name__)
 
@@ -11,7 +14,7 @@ def process_game_state(game, movements=None):
     if movements is None:
         # fetch movements from cache
         log.info("fetching movements for game: %s", game)
-        movements = get_movements(game)
+        movements = get_player_directions(game)
 
     # Update all snakes with their directions
     log.info("processing movements for game: %s", game)
@@ -21,6 +24,10 @@ def process_game_state(game, movements=None):
     log.info("processing collisions for game: %s", game)
     new_state, collisions = process_collisions(game, new_state)
 
+    # Player has joined the game
+    log.info("processing new players for game %s", game)
+    new_state = process_new_players(game, new_state)
+
     # Drop new fruit
     log.info("dropping fruit for game: %s", game)
     new_state = add_food(game, new_state)
@@ -29,86 +36,68 @@ def process_game_state(game, movements=None):
     return new_state
 
 
-def get_movements(game):
-    return {}
+def process_movements(game, movements) -> State:
 
-
-def move_block(pos, direction):
-    return [pos[0] + direction[0], pos[1] + direction[1]]
-
-
-def compare_in(pos1, pos_list):
-    # make sure we're comparing tuples to tuples
-    return tuple(pos1) in list(map(tuple, pos_list))
-
-
-def process_movements(game, movements):
-
-    state = game.current_board.state
+    state: State = game.current_board.loaded_state
     # Process movement updates for each player
-    for player in state['players']:
+    for player in state.players:
 
         # only update alive players
-        if not player['alive']:
+        if not player.alive:
             continue
 
         # update player direction if we've got a new one in movements
-        if player['username'] in movements:
-            new_direction = movements[player['username']]
+        if player.username in movements:
+            new_direction = movements[player.username]
 
             # validate movement is a valid choice:
-            if (new_direction, tuple(player['direction'])) in (
+            if (new_direction, tuple(player.direction)) in (
                     (Direction.UP.value, Direction.DOWN.value),
                     (Direction.DOWN.value, Direction.UP.value),
                     (Direction.LEFT.value, Direction.RIGHT.value),
                     (Direction.RIGHT.value, Direction.LEFT.value)
             ):
-                log.info("Invalid movement selected for Player: %s in %s", player['username'], game)
+                log.info("Invalid movement selected for Player: %s in %s", player.username, game)
             else:
-                player['direction'] = new_direction
-
-        snake = player['snake']
+                player.direction = new_direction
 
         # update snake with new head and all but last block of current snake
-        head = move_block(player['snake'][0], player['direction'])
-        player['snake'] = [head] + snake[:-1]
+        player.move()
 
     return state
 
 
-def process_collisions(game, state):
+def process_collisions(game, state: State):
 
     board = game.current_board
 
     collisions = []
-    for player in state['players']:
+    for player in state.players:
 
-        head = player['snake'][0]
+        head = player.snake[0]
 
         # wall collision
         if (
-            head[0] < 0 or head[0] >= board.dimensions[0] or
-            head[1] < 0 or head[1] >= board.dimensions[1]
+            head.x < 0 or head.x >= board.dimensions[0] or
+            head.y < 0 or head.y >= board.dimensions[1]
         ):
-            log.info("Player %s in %s hit a wall", player['username'], game)
-            player['alive'] = False
-            collisions.append("%s hit a wall" % player['username'])
+            log.info("Player %s in %s hit a wall", player.username, game)
+            player.alive = False
+            collisions.append("%s hit a wall" % player.username)
 
         # other player collision
-        other_players = [p for p in state['players'] if p != player and p['alive']]
+        other_players = [p for p in state.players if p != player and p.alive]
         for other in other_players:
-            if compare_in(head, other['snake']):
-            #if head in other['snake']:
-                log.info("Player %s in %s hit Player: %s", player['username'], game, other['username'])
-                player['alive'] = False
-                collisions.append("%s hit %s" % (player['username'], other['username']))
+            if head in other.snake:
+                log.info("Player %s in %s hit Player: %s", player.username, game, other.username)
+                player.alive = False
+                collisions.append("%s hit %s" % (player.username, other.username))
 
         # self collision
-        if compare_in(head, player['snake'][1:]):
-        #if head in player['snake'][1:]:
-            log.info("Player %s in %s hit self", player['username'], game)
-            player['alive'] = False
-            collisions.append("%s hit self" % player['username'])
+        if head in player.snake[1:]:
+            log.info("Player %s in %s hit self", player.username, game)
+            player.alive = False
+            collisions.append("%s hit self" % player.username)
 
         # blocks
         #blocks = {(x, y): username for (x, y, username) in board.state['blocks']}
@@ -119,40 +108,76 @@ def process_collisions(game, state):
         #    collisions.append("%s hit a block" % player['username'])
 
         # food
-        if compare_in(head, board.state['food']):
-        #if head in board.state['food']:
+        if head in state.food:
             # Grow our tail by growth_factor in the same block as our tail
             for x in range(game.growth_factor):
-                player['snake'].append(player['snake'][-1])
+                player.snake.append(player.snake[-1])
 
-            log.info("Player %s ate food at pos %s in %s", player['username'], head, game)
-            collisions.append("%s hit a food block" % player['username'])
+            log.info("Player %s ate food at pos %s in %s", player.username, head, game)
+            collisions.append("%s hit a food block" % player.username)
 
             # remove food
-            state['food'].remove(head)
+            state.food.remove(head)
 
     return state, collisions
 
 
 def add_food(game, state):
-
-    if len(state['food']) < game.food_number:
+    # 1 less food than num players, but at least 1 for testing (0 for leaderboards)
+    if len(state.food) < max(len(state.players) - 1, 1):
         available = set()
-        for row in range(game.current_board.dimensions[0]):
-            for col in range(game.current_board.dimensions[1]):
-                available.add((row, col))
+        dims = game.current_board
+        for row in range(dims[0]):
+            for col in range(dims[1]):
+                available.add(Coords(row, col))
 
-        for player in state['players']:
-            for pos in player['snake']:
+        for player in state.players:
+            for pos in player.snake:
                 try:
-                    available.remove(tuple(pos))
+                    available.remove(pos)
                 except KeyError:
                     continue
 
-        for food in state['food']:
-            available.remove(tuple(food))
+        for food in state.food:
+            available.remove(food)
 
         pos = random.choice(list(available))
 
-        state['food'].append(pos)
+        state.food.append(pos)
+    return state
+
+
+def process_new_players(game, state):
+    player = get_queued_player(game)
+    if not player:
+        return state
+
+    board = game.current_board
+
+    # generate random position and add to state
+    dims = board.dimensions
+    c = Coords(
+        x=random.randint(0, dims[0]),
+        y=random.randint(0, dims[1])
+    )
+    # direct it away from the closest walls, and stretch out that direction 3 squares
+    x_mid, y_mid = dims[0] // 2, dims[1] // 2
+    x_dir = Direction.LEFT if c.x > x_mid else Direction.RIGHT
+    y_dir = Direction.UP if c.y > y_mid else Direction.DOWN
+    direction = random.choice((x_dir, y_dir))
+    body = c.move(direction)
+    head = body.move(direction)
+    snake = [head, body, c]
+
+    # check that we don't intersect with any other snek, otherwise put back
+    # into queue and wait for next tick (could be costly looping and checking)
+    set_snake = set(snake)
+    for player in state.players:
+        if set(player.snake) & set_snake:
+            # collision, put player back in queue
+            join_queue(game, player, at_front=True)
+            return state
+
+    p = Player(username=player, snake=snake, alive=True, direction=direction)
+    state.players.append(p)
     return state

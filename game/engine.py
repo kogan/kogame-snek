@@ -1,11 +1,100 @@
 import logging
 import threading
 import time
+from enum import Enum, unique
+from typing import List, Mapping, Set
 
+import attr
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.core.cache import cache
+from redis.client import StrictRedis
 
 log = logging.getLogger(__name__)
+
+
+@unique
+class Direction(Enum):
+    UP = (0, -1)
+    DOWN = (0, 1)
+    LEFT = (-1, 0)
+    RIGHT = (1, 0)
+
+
+@attr.s(frozen=True)
+class Coords:
+    x: int = attr.ib(validator=attr.validators.instance_of(int))
+    y: int = attr.ib(validator=attr.validators.instance_of(int))
+
+    def move(self, direction: Direction) -> 'Coords':
+        dx, dy = direction.value
+        return Coords(self.x + dx, self.y + dy)
+
+
+@attr.s
+class Player:
+    username = attr.ib()
+    snake: List[Coords] = attr.ib()
+    alive: bool = attr.ib(validator=attr.validators.instance_of(bool))
+    direction: Direction = attr.ib(validator=attr.validators.in_(Direction))
+
+    def move(self):
+        """
+        Updates the snake, moving the head in direction, and chopping the last
+        block.
+        """
+        new_head = self.snake[0].move(self.direction)
+        self.snake = [new_head] + self.snake[:-1]
+
+
+@attr.s
+class State:
+    players: List[Player] = attr.ib()
+    food: Set[Coords] = attr.ib(default=attr.Factory(set))
+    blocks: Set[Coords] = attr.ib(default=attr.Factory(set))
+    tick: int = attr.ib(default=0, validator=attr.validators.instance_of(int))
+
+    @staticmethod
+    def from_dict(state_dict):
+        return State(
+            players=[Player(**player) for player in state_dict['players']],
+            food={Coords(**food) for food in state_dict['food']},
+            blocks={Coords(**block) for block in state_dict['blocks']},
+            tick=state_dict['tick']
+        )
+
+
+def set_player_direction(game, username: str, direction: Direction):
+    redis: StrictRedis = cache.client.get_client()
+    hash_key = f'playerdirections.{game.pk}'
+    return redis.hset(hash_key, username, direction.name)
+
+
+def get_player_directions(game) -> Mapping[str, Direction]:
+    redis: StrictRedis = cache.client.get_client()
+    hash_key = f'playerdirections.{game.pk}'
+    directions: Mapping[bytes, bytes] = redis.hgetall(hash_key)
+    return {
+        player.decode('utf8'): Direction[direction.decode('utf8')]
+        for player, direction in directions.items()
+    }
+    return directions
+
+
+def join_queue(game, username: str, at_front=False):
+    redis: StrictRedis = cache.client.get_client()
+    hash_key = f'playerqueue.{game.pk}'
+    if at_front:
+        return redis.lpush(hash_key, username)
+    return redis.rpush(hash_key, username)
+
+
+def get_queued_player(game):
+    # only one player can join at a time
+    redis: StrictRedis = cache.client.get_client()
+    hash_key = f'playerqueue.{game.pk}'
+    username = redis.lpop(hash_key)
+    return username if username is None else username.decode('utf8')
 
 
 class GameEngine(threading.Thread):
@@ -25,7 +114,7 @@ class GameEngine(threading.Thread):
         while True:
             state = self.game.game_tick()
             self.broadcast_state(state)
-            time.sleep(1)
+            time.sleep(2)
 
     def broadcast_state(self, state):
         async_to_sync(self.channel_layer.group_send)(

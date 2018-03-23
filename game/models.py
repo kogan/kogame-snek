@@ -1,6 +1,9 @@
+import attr
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.utils.functional import cached_property
 
+from .engine import State
 from .process_game import process_game_state
 
 
@@ -16,15 +19,19 @@ class Game(models.Model):
             self.pk, self.tick, self.started
         )
 
-    @property
-    def current_board(self):
+    @cached_property
+    def current_board(self) -> 'Board':
         return self.board_set.order_by('-tick').first()
 
     def game_tick(self):
         self.tick += 1
         new_state = process_game_state(self)
-        new_state['tick'] = self.tick
-        board = Board.objects.create(state=new_state, game=self, tick=self.tick)
+        new_state.tick = self.tick
+        dict_state = attr.asdict(new_state)
+        # enums aren't serializable :/
+        for player in dict_state['players']:
+            player['direction'] = player['direction'].name
+        board = Board.objects.create(state=dict_state, game=self, tick=self.tick)
         self.save()
         return board.state
 
@@ -39,7 +46,6 @@ class Board(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.state:
-
             self.state = {
                 "players": [],
                 "food": [],
@@ -53,9 +59,10 @@ class Board(models.Model):
             self.pk, self.tick, self.game
         )
 
+    @cached_property
+    def loaded_state(self) -> State:
+        return State.from_dict(self.state)
+
     def player_count(self):
-        alive = 0
-        for player in self.state['players']:
-            if player['alive']:
-                alive += 1
-        return alive
+        state = self.loaded_state
+        return sum(p.alive for p in state.players)
