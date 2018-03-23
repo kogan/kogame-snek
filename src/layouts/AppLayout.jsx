@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import ChatContainer from 'containers/ChatContainer'
+import SnekContainer from 'containers/SnekContainer'
 import HeaderLayout from './HeaderLayout'
 import BodyLayout from './BodyLayout'
 import FooterLayout from './FooterLayout'
@@ -19,7 +19,7 @@ class AppLayout extends PureComponent {
       <div className="l-home">
         <HeaderLayout />
         <BodyLayout>
-          <ChatContainer />
+          <SnekContainer />
         </BodyLayout>
         <FooterLayout />
       </div>

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { COMPONENT_TITLE } from './constants'
 
-function GenericContainer() {
+function SnekContainer() {
   return <h2 className="">{COMPONENT_TITLE} Just Another Generic Container</h2>
 }
 
@@ -24,4 +24,4 @@ function mapDispatchToProps(dispatch) {
 // To promote a component to a container (smart component) - it needs
 // to know about this new dispatch method. Make it available
 // as a prop.
-export default connect(mapStateToProps, mapDispatchToProps)(GenericContainer)
+export default connect(mapStateToProps, mapDispatchToProps)(SnekContainer)
