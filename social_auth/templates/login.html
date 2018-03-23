@@ -1,0 +1,13 @@
+{% block extra_js %}
+
+    <h1>Login</h1>
+
+    <p>
+        By accessing this system, you agree to do whatever it takes to survive as long as you can.<br/>
+        Only the brave will survive!!
+    </p>
+
+    <a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a><br>
+
+{% endblock %}
+
