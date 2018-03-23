@@ -1,2 +1,20 @@
-<h2>Hello</h2>
-<p>Hello {{ user.username }}!</p>
+{% block extra_js %}
+
+        <h1>Login</h1>
+
+        <p>
+            Unauthorized access to this system is forbidden and will be prosecuted by law.<br/>
+            By accessing this system, you agree that your actions may be monitored.
+        </p>
+
+        <a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a><br>
+
+
+        <ul class="fields">
+            <li class="submit">
+                {% block submit_buttons %}
+                {% endblock %}
+            </li>
+        </ul>
+{% endblock %}
+
