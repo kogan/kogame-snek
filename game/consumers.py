@@ -35,7 +35,6 @@ class PlayerConsumer(JsonWebsocketConsumer):
         )
 
     async def disconnect(self):
-
         # Leave game
         await self.channel_layer.group_discard(
             self.room_group_name,
@@ -44,7 +43,7 @@ class PlayerConsumer(JsonWebsocketConsumer):
 
     # Receive message from Websocket
     async def receive_json(self, content):
-        direction = Direction[content['direction'].decode('utf8')]
+        direction = Direction[content['direction']]
 
         # update player direction
         set_player_direction(
@@ -54,20 +53,9 @@ class PlayerConsumer(JsonWebsocketConsumer):
         )
 
     # Send game data to room group after a Tick is processed
-    async def game_update(self, event):
-
-        # TODO - add information processed from Tick
-        data = event
-        players = '1'
-        board = '2'
-        leaderboard = '3'
-
+    async def game_update(self, state):
         # Send message to WebSocket
-        await self.send_json(text_data={
-            'players': players,
-            'board': board,
-            'leaderboard': leaderboard,
-        })
+        await self.send_json(state)
 
 
 class GameConsumer(SyncConsumer):
