@@ -1,18 +1,5 @@
 :global {
   body {
-    background: black;
-  }
-
-  .l-pg {
-    &--width {
-      margin: 0 $grid_gutter;
-      @include query($tablet_trigger) {
-        margin: auto;
-        width: $tablet_trigger;
-      }
-      @include query($desktop_trigger) {
-        width: $desktop_trigger;
-      }
-    }
+    background: 555;
   }
 }
