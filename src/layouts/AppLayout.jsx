@@ -51,7 +51,7 @@ class AppLayout extends PureComponent {
     const { chatSocket } = this
     chatSocket.onmessage = (e) => {
       const data = JSON.parse(e.data)
-      const { message } = data
+      const message = data
 
       this.setState({
         players: message.players ? message.players : [],

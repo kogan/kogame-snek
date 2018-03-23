@@ -33,7 +33,7 @@ class Board(models.Model):
     dimensions = [50, 50]
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    tick = models.PositiveIntegerField()
+    tick = models.PositiveIntegerField(default=0)
     state = JSONField()
 
     def save(self, *args, **kwargs):
@@ -46,7 +46,6 @@ class Board(models.Model):
                 "tick": 0,
             }
         super(Board, self).save(*args, **kwargs)
-
 
     def __str__(self):
         return 'Board<id={0}, tick={1}>: {2}'.format(
