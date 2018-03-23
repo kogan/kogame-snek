@@ -16,6 +16,7 @@ class GameEngine(threading.Thread):
             name='GameEngine',
             **kwargs
         )
+        self.room_name = room_name
         self.channel_layer = get_channel_layer()
         self.game = kwargs['game']
 
@@ -28,9 +29,9 @@ class GameEngine(threading.Thread):
 
     def broadcast_state(self, state):
         async_to_sync(self.channel_layer.group_send)(
-            'game_events',
+            self.room_name,
             {
                 'type': 'game_update',
-                'data': state
+                'state': state,
             }
         )
