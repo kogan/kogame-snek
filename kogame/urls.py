@@ -15,12 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from social_auth import views as social_views
 from . import views
 
 urlpatterns = [
     path('', views.index),
+    path('auth', social_views.login),
     path('admin/', admin.site.urls),
     # Google Authentication
-    path('auth/', include('social_django.urls', namespace='social')),
+
+    path('oauth/', include('social_django.urls', namespace='social')),
 ]
