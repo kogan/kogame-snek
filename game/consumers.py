@@ -62,6 +62,10 @@ class GameConsumer(SyncConsumer):
     def __init__(self, *args, **kwargs):
         log.info('Game Consumer: %s %s', args, kwargs)
         super().__init__(*args, **kwargs)
+        self.group_name = 'snek_game'
         self.game = Game.objects.create(tick=0)
-        self.engine = GameEngine(self.game)
+        self.engine = GameEngine(self.game, self.group_name)
         self.engine.start()
+
+    def player_new(self, message):
+        log.info('Player Joined: %s', message)
