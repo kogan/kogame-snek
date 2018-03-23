@@ -9,14 +9,14 @@ log = logging.getLogger(__name__)
 
 
 class GameEngine(threading.Thread):
-    def __init__(self, game, room_name, **kwargs):
+    def __init__(self, game, group_name, **kwargs):
         log.info('Init GameEngine...')
         super(GameEngine, self).__init__(
             daemon=True,
             name='GameEngine',
             **kwargs
         )
-        self.room_name = room_name
+        self.group_name = group_name
         self.channel_layer = get_channel_layer()
         self.game = kwargs['game']
 
@@ -29,7 +29,7 @@ class GameEngine(threading.Thread):
 
     def broadcast_state(self, state):
         async_to_sync(self.channel_layer.group_send)(
-            self.room_name,
+            self.group_name,
             {
                 'type': 'game_update',
                 'state': state,
