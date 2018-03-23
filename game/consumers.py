@@ -5,7 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.consumer import SyncConsumer
 
 from .engine import GameEngine
-from .models import Game
+from .models import Board, Game
 
 from .players import Direction, set_player_direction
 
@@ -71,6 +71,7 @@ class GameConsumer(SyncConsumer):
         super().__init__(*args, **kwargs)
         self.group_name = 'snek_game'
         self.game = Game.objects.create(tick=0)
+        Board.objects.create(game=self.game, tick=0)
         self.engine = GameEngine(self.game, self.group_name)
         self.engine.start()
 
