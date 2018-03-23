@@ -1,7 +1,5 @@
 import logging
 
-from .models import Board
-
 from .players import Direction
 
 log = logging.getLogger(__name__)
@@ -23,14 +21,14 @@ def process_game_state(game):
 
     # Drop new fruit
     log.debug("dropping fruit for game: %s", game)
-    new_state = add_fruit(game)
-
-    # Save new game state
-    log.debug("saving game state for game: %s", game)
-    board = Board.objects.create(state=new_state, game=game)
+    new_state = add_fruit(game, new_state)
 
     # successful update
-    return board
+    return new_state
+
+
+def get_movements(game):
+    return {}
 
 
 def move_block(pos, direction):
@@ -42,6 +40,10 @@ def process_movements(game, movements):
     state = game.current_board.state
     # Process movement updates for each player
     for player in state['players']:
+
+        # only update alive players
+        if not player['alive']:
+            continue
 
         # update player direction if we've got a new one in movements
         if player['username'] in movements:
@@ -82,7 +84,7 @@ def process_collisions(game, state):
             player['alive'] = False
 
         # other player collision
-        other_players = [p for p in state['players'] if p != player]
+        other_players = [p for p in state['players'] if p != player and p['alive']]
         for other in other_players:
             if head in other['snake']:
                 log.debug("Player %s in %s hit Player: %s",
@@ -91,13 +93,13 @@ def process_collisions(game, state):
 
         # blocks
         blocks = {(x, y): username for (x, y, username) in board.state['blocks']}
-        if head in blocks:
+        if tuple(head) in blocks:
             log.debug("Player %s hit a block at %s from player %s",
                       player['username'], head, blocks[head])
             player['alive'] = False
 
         # food
-        if head in board['food']:
+        if head in board.state['food']:
             # Grow our tail by growth_factor in the same block as our tail
             for x in range(game.growth_factor):
                 player['snake'].append(player['snake'][-1])
@@ -108,4 +110,8 @@ def process_collisions(game, state):
             # remove food
             board['food'].remove(head)
 
+    return state
+
+
+def add_fruit(game, state):
     return state
