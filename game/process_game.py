@@ -56,8 +56,8 @@ def process_movements(game, movements):
             ):
                 log.debug("Invalid movement selected for Player: %s in %s",
                           player['username'], game)
-        else:
-            player['direction'] = new_direction
+            else:
+                player['direction'] = new_direction
 
         snake = player['snake']
 
@@ -95,5 +95,11 @@ def process_collisions(game, state):
             log.debug("Player %s hit a block at %s from player %s",
                       player['username'], head, blocks[head])
             player['alive'] = False
+
+        # food
+        if head in board['food']:
+            # Grow our tail by growth_factor in the same block as our tail
+            for x in range(game.growth_factor):
+                player['snake'].append(player['snake'][-1])
 
     return state

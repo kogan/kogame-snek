@@ -3,6 +3,9 @@ from django.db import models
 
 
 class Game(models.Model):
+
+    growth_factor = 2  # How much to grow if we eat food
+
     started = models.DateTimeField(auto_now_add=True)
     tick = models.PositiveIntegerField()
 
