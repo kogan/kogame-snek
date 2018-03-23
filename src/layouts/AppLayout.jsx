@@ -9,7 +9,7 @@ import FooterLayout from './FooterLayout'
 
 import styles from './styles.scss'
 
-// Container is a react component that gets bonded with application state
+// TContainer is a react component that gets bonded with application state
 class AppLayout extends PureComponent {
   constructor(props) {
     super(props)
