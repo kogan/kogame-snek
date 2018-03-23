@@ -7,6 +7,9 @@ from channels.consumer import SyncConsumer
 from .engine import GameEngine
 from .models import Game
 
+from .models import Game
+from .players import Direction, get_player_directions, set_player_direction
+
 log = logging.getLogger(__name__)
 
 
@@ -40,12 +43,17 @@ class PlayerConsumer(AsyncWebsocketConsumer):
         )
 
     # Receive message from Websocket
-    async def receive(self, direction):
+    async def receive(self, direction_data):
+        direction_data_json = json.loads(direction_data)
+        raw_direction = direction_data['direction']
+        direction = Direction[raw_direction.decode('utf8')]
 
-        # Send direction update to room group
-        await self.send(text_data=json.dumps({
-            'direction': direction,
-        }))
+        # update player direction
+        set_player_direction(
+            Game.current_board(),
+            get_user(self.scope),
+            direction
+        )
 
     # Send game data to room group after a Tick is processed
     async def game_update(self, event):
