@@ -8,7 +8,7 @@ from chat.consumers import ChatConsumer
 application = ProtocolTypeRouter({
     "websocket": SessionMiddlewareStack(
         URLRouter([
-            url(r'^game/$', PlayerConsumer),
+            url(r'^ws/game/$', PlayerConsumer),
             url(r'^ws/chat/(?P<room_name>[^/]+)/$', ChatConsumer),
         ])
     ),
