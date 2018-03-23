@@ -15,11 +15,42 @@ class AppLayout extends PureComponent {
   }
   render() {
     // const { componentBeingRendered } = this.props
+    const players = [
+      {
+        username: 'none@null.kgn.io',
+        snake: [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [1, 3],
+          [2, 3],
+          [3, 3],
+          [3, 4],
+          [3, 5],
+        ],
+        direction: 'UP',
+        alive: true,
+        start_tick: 1,
+        colour: '#FF0000',
+      },
+    ]
+
+    const board = {
+      dimensions: [50, 50],
+      food: [[10, 10], [20, 20]],
+      blocks: [],
+    }
+
     return (
       <div className="l-home">
         <HeaderLayout />
         <BodyLayout>
-          <SnekContainer />
+          <SnekContainer
+            players={players}
+            board={board}
+            cellSize={20}
+          />
         </BodyLayout>
         <FooterLayout />
       </div>
