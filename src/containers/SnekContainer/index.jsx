@@ -48,25 +48,22 @@ class SnekContainer extends PureComponent {
   setDirection = ({ keyCode }) => {
     const { sendKeyUpdate } = this.props
 
-    let activeDirection = null
-
     switch (keyCode) {
       case KEYS.left:
-        activeDirection = 'LEFT'
+        sendKeyUpdate({ direction: 'LEFT' })
         break
       case KEYS.right:
-        activeDirection = 'RIGHT'
+        sendKeyUpdate({ direction: 'RIGHT' })
         break
       case KEYS.up:
-        activeDirection = 'UP'
+        sendKeyUpdate({ direction: 'UP' })
         break
       case KEYS.down:
-        activeDirection = 'DOWN'
+        sendKeyUpdate({ direction: 'DOWN' })
         break
       default:
         break
     }
-    sendKeyUpdate({ direction: activeDirection })
   };
 
   renderBoard = () => {
