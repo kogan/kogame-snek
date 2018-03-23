@@ -39,7 +39,7 @@ def move_block(pos, direction):
 
 def process_movements(game, movements):
 
-    state = game.state
+    state = game.current_board.state
     # Process movement updates for each player
     for player in state['players']:
 
@@ -64,5 +64,36 @@ def process_movements(game, movements):
         # update snake with new head and all but last block of current snake
         head = move_block(player['snake'][0], player['direction'])
         player['snake'] = [head] + snake[:-1]
+
+    return state
+
+
+def process_collisions(game, state):
+
+    board = game.current_board
+    for player in state['players']:
+
+        head = player['snake'][0]
+
+        # wall collision
+        if 0 < head[0] <= board.dimensions[0] or \
+                0 < head[1] <= board.dimensions[1]:
+            log.debug("Player %s in %s hit a wall", player['username'], game)
+            player['alive'] = False
+
+        # other player collision
+        other_players = [p for p in state['players'] if p != player]
+        for other in other_players:
+            if head in other['snake']:
+                log.debug("Player %s in %s hit Player: %s",
+                          player['username'], game, other['username'])
+                player['alive'] = False
+
+        # blocks
+        blocks = {(x, y): username for (x, y, username) in board.state['blocks']}
+        if head in blocks:
+            log.debug("Player %s hit a block at %s from player %s",
+                      player['username'], head, blocks[head])
+            player['alive'] = False
 
     return state
