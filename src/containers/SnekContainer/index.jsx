@@ -118,6 +118,7 @@ class SnekContainer extends PureComponent {
           key={Math.random().toString()}
           size={cellSize}
           cellType={cellObject.cellType}
+          bodyType={cellObject.bodyType}
         />)
       }
     }

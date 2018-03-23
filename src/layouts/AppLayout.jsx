@@ -76,7 +76,7 @@ class AppLayout extends PureComponent {
             players={this.state.players}
             leaderBoard={this.state.leaderBoard}
             sendKeyUpdate={this.sendKeyUpdate}
-            cellSize={36}
+            cellSize={20}
           />
         </BodyLayout>
         <FooterLayout />
