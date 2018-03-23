@@ -21,24 +21,24 @@
     "react"
   ],
   "settings": {
-    "import/resolver": "webpack",
-    "extensions": [".js",".jsx"],
-    "paths": ["./src/"],
+    "import/resolver": {
+      "node": {
+        "extensions": [".js",".jsx"],
+        "paths": ["./src/"]
+      }
+    },
     "import/ignore": [
       "node_modules",
       "\\.(scss|css|svg|json)$"
     ],
     "react": {
-      // Regex for Component Factory to use, default to "createClass"
       "createClass": "createClass",
-      // Pragma to use, default to "React"
       "pragma": "React",
-      // React version, default to the latest React stable release
       "version": "16.0"
     }
   },
   "rules": {
-    "strict": 0, // class field (a.k.a. property initializer) syntax - ie using arrow functions in classes instead of bind - Stage 2 proposal
+    "strict": 0,
     "semi": [2, "never"],
     "comma-dangle": [2, "always-multiline"],
     "max-len": ["error", 120, 2],
