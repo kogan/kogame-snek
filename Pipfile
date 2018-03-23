@@ -1,12 +1,9 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [dev-packages]
-
 "flake8" = "*"
 isort = "*"
 werkzeug = "*"
@@ -19,9 +16,7 @@ ipdb = "*"
 responses = "*"
 django-debug-toolbar = "*"
 
-
 [packages]
-
 django = ">=2.0,<2.1"
 dj-database-url = "*"
 gunicorn = "*"
@@ -32,8 +27,7 @@ social-auth-app-django = "==2.1.0"
 channels = ">=2.0,<2.1"
 channels-redis = "*"
 service-identity = "*"
-
+django-redis = "*"
 
 [requires]
-
 python_version = "3.6"
