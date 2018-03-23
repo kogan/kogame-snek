@@ -54,7 +54,6 @@ class Board(models.Model):
         )
 
     def player_count(self):
-
         alive = 0
         for player in self.state['players']:
             if player['alive']:
