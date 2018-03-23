@@ -11,8 +11,15 @@ class Game(models.Model):
             self.pk, self.tick, self.started
         )
 
+    @property
+    def current_board(self):
+        return self.board_list.order_by('-tick').first()
+
 
 class Board(models.Model):
+
+    dimensions = [50,50]
+
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     tick = models.PositiveIntegerField()
     state = JSONField()
