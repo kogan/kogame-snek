@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -6,7 +6,7 @@ import GridCell from 'components/GridCell'
 import { KEYS } from './constants'
 import styles from './styles.scss'
 
-class SnekContainer extends Component {
+class SnekContainer extends PureComponent {
   static propTypes = {
     cellSize: PropTypes.number,
     board: PropTypes.object,
@@ -45,12 +45,6 @@ class SnekContainer extends Component {
     sendKeyUpdate: f => f,
   };
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      activeDirection: null,
-    }
-  }
   setDirection = ({ keyCode }) => {
     const { sendKeyUpdate } = this.props
 
@@ -58,13 +52,13 @@ class SnekContainer extends Component {
 
     switch (keyCode) {
       case KEYS.left:
-        activeDirection = 'UP'
+        activeDirection = 'LEFT'
         break
       case KEYS.right:
         activeDirection = 'RIGHT'
         break
       case KEYS.up:
-        activeDirection = 'LEFT'
+        activeDirection = 'UP'
         break
       case KEYS.down:
         activeDirection = 'DOWN'
@@ -72,7 +66,6 @@ class SnekContainer extends Component {
       default:
         break
     }
-    this.setState({ activeDirection })
     sendKeyUpdate({ direction: activeDirection })
   };
 
@@ -108,19 +101,29 @@ class SnekContainer extends Component {
       for (let snakePos = 0; snakePos < player.snake.length; snakePos += 1) {
         const snakeX = player.snake[snakePos][0]
         const snakeY = player.snake[snakePos][1]
-        cells[snakeX][snakeY] = { cellType: 'snake' }
+        if (snakePos === 0) {
+          cells[snakeX][snakeY] = { cellType: 'snake', bodyType: 'head' }
+        } else if (snakePos === (player.snake.length - 1)) {
+          cells[snakeX][snakeY] = { cellType: 'snake', bodyType: 'tail' }
+        } else {
+          cells[snakeX][snakeY] = { cellType: 'snake', bodyType: 'body' }
+        }
       }
     }
 
     for (let row = 0; row < numRows; row += 1) {
       for (let col = 0; col < numCols; col += 1) {
         const cellObject = cells[row][col]
-        renderedGridCells.push(<GridCell size={cellSize} cellType={cellObject.cellType} />)
+        renderedGridCells.push(<GridCell
+          key={Math.random().toString()}
+          size={cellSize}
+          cellType={cellObject.cellType}
+        />)
       }
     }
     return (
       <div
-        tabIndex="1"
+        tabIndex="0"
         role="presentation"
         className={styles.boardLayout}
         onKeyDown={this.setDirection}

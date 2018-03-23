@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styles from './styles.scss'
 
 // display a single cell
-const GridCell = ({ size, cellType }) => {
+const GridCell = ({ size, cellType, bodyType }) => {
   let cellClassName = ''
   switch (cellType) {
     case 'food':
@@ -27,11 +27,13 @@ const GridCell = ({ size, cellType }) => {
 GridCell.defaultProps = {
   size: 20,
   cellType: '',
+  bodyType: '',
 }
 
 GridCell.propTypes = {
   size: PropTypes.number,
   cellType: PropTypes.string,
+  bodyType: PropTypes.string,
 }
 
 export default GridCell
