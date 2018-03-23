@@ -10,7 +10,7 @@ application = ProtocolTypeRouter({
         URLRouter([
             url(r'^ws/game/$', PlayerConsumer),
             url(r'^ws/chat/(?P<room_name>[^/]+)/$', ChatConsumer),
-        ])
+        ]),
     ),
     'channel': ChannelNameRouter({
         'game_engine': GameConsumer,

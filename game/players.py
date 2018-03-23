@@ -3,7 +3,6 @@ from typing import Mapping
 
 from django.core.cache import cache
 from redis.client import StrictRedis
-from .models import Game
 
 
 @unique
@@ -14,7 +13,7 @@ class Direction(Enum):
     RIGHT = (1, 0)
 
 
-def set_player_direction(game: Game, player: str, direction: Direction):
+def set_player_direction(game, player: str, direction: Direction):
     redis: StrictRedis = cache.client.get_client()
     hash_key = f'playerdirections.{game.pk}'
     return redis.hset(hash_key, player, direction.name)

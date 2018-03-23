@@ -20,7 +20,7 @@ class Game(models.Model):
     def current_board(self):
         return self.board_set.order_by('-tick').first()
 
-    def tick(self):
+    def game_tick(self):
         new_state = process_game_state(self)
         board = Board.objects.create(state=new_state, game=self)
         self.tick += 1
