@@ -1,7 +1,7 @@
 import json
 import logging
 
-from channels.consumer import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 log = logging.getLogger(__name__)
 
@@ -39,9 +39,9 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         # TODO - add information processed from Tick
         data = event
-        players = data['something']
-        board = None
-        leaderboard = None
+        players = '1'
+        board = '2'
+        leaderboard = '3'
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
