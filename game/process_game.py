@@ -102,4 +102,10 @@ def process_collisions(game, state):
             for x in range(game.growth_factor):
                 player['snake'].append(player['snake'][-1])
 
+            log.debug("Player %s ate food at pos %s in %s",
+                      player['username'], head, game)
+
+            # remove food
+            board['food'].remove(head)
+
     return state
