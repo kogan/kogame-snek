@@ -18,12 +18,12 @@ class GameEngine(threading.Thread):
         )
         self.group_name = group_name
         self.channel_layer = get_channel_layer()
-        self.game = kwargs['game']
+        self.game = game
 
     def run(self):
         log.info('Starting engine loop')
         while True:
-            state = self.game.tick()
+            state = self.game.game_tick()
             self.broadcast_state(state)
             time.sleep(1)
 

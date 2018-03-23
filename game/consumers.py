@@ -1,6 +1,7 @@
+import json
 import logging
 
-from channels.generic.websocket import JsonWebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.consumer import SyncConsumer
 
 from .engine import GameEngine
@@ -11,8 +12,9 @@ from .players import Direction, set_player_direction
 log = logging.getLogger(__name__)
 
 
-class PlayerConsumer(JsonWebsocketConsumer):
+class PlayerConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        log.info('Connect')
         self.group_name = 'snek_game'
         self.game = None
 
@@ -32,25 +34,26 @@ class PlayerConsumer(JsonWebsocketConsumer):
             }
         )
 
-    async def disconnect(self):
+    async def disconnect(self, close_code):
         # Leave game
-        log.info('Disconnect')
+        log.info('Disconnect: %s', close_code)
         await self.channel_layer.group_discard(
             self.group_name,
             self.channel_name
         )
 
     # Receive message from Websocket
-    async def receive_json(self, content):
-        log.info('Receive JSON: %s', content)
+    async def receive(self, text):
+        log.info('Receive TEXT: %s', text)
+        content = json.loads(text)
         direction = content['direction']
         await self.channel_layer.send(
             'game_engine',
-            {
+            json.dumps({
                 'type': 'player.direction',
                 'player': 'me',
                 'direction': direction,
-            }
+            })
         )
 
     # Send game data to room group after a Tick is processed
@@ -58,11 +61,7 @@ class PlayerConsumer(JsonWebsocketConsumer):
         log.info('Game Update: %s', event)
         # Send message to WebSocket
         state = event['state']
-        await self.send_json(state)
-
-    async def current_game(self, event):
-        game_id = event['game_id']
-        self.game = Game.objects.get(pk=game_id)
+        await self.send(json.dumps(state))
 
 
 class GameConsumer(SyncConsumer):
@@ -76,7 +75,6 @@ class GameConsumer(SyncConsumer):
 
     def player_new(self, event):
         log.info('Player Joined: %s', event)
-        self.engine.player_new()
 
     def player_direction(self, event):
         log.info('Player direction changed: %s', event)
