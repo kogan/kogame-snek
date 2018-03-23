@@ -7,10 +7,10 @@ from chat.consumers import ChatConsumer
 
 application = ProtocolTypeRouter({
     "websocket": SessionMiddlewareStack(
-        URLRouter([
-            url(r'^game/$', PlayerConsumer),
-            url(r'^ws/chat/(?P<room_name>[^/]+)/$', ChatConsumer),
-        ])
+    'websocket': URLRouter([
+        url(r'^ws/game/$', GameConsumer),
+        url(r'^ws/chat/(?P<room_name>[^/]+)/$', ChatConsumer),
+    ]),
     ),
     'channel': ChannelNameRouter({
         'game_engine': GameConsumer,

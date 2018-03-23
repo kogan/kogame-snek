@@ -10,13 +10,39 @@ class SnekContainer extends Component {
   static propTypes = {
     cellSize: PropTypes.number,
     board: PropTypes.object,
-    players: PropTypes.object,
+    players: PropTypes.array,
+    sendKeyUpdate: PropTypes.func,
   };
 
   static defaultProps = {
-    cellSize: 20,
-    board: {},
-    players: {},
+    cellSize: 36,
+    board: {
+      dimensions: [50, 50],
+      food: [[10, 10], [20, 20]],
+      blocks: [],
+      tick: 1,
+    },
+    players: [
+      {
+        username: 'none@null.kgn.io',
+        snake: [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [1, 3],
+          [2, 3],
+          [3, 3],
+          [3, 4],
+          [3, 5],
+        ],
+        direction: 's',
+        alive: true,
+        start_tick: 1,
+        colour: '#FF0000',
+      },
+    ],
+    sendKeyUpdate: f => f,
   };
 
   constructor(props) {
@@ -26,6 +52,8 @@ class SnekContainer extends Component {
     }
   }
   setDirection = ({ keyCode }) => {
+    const { sendKeyUpdate } = this.props
+
     let activeDirection = null
 
     switch (keyCode) {
@@ -45,27 +73,21 @@ class SnekContainer extends Component {
         break
     }
     this.setState({ activeDirection })
+    sendKeyUpdate({ direction: activeDirection })
   };
 
   renderBoard = () => {
-    const {
-      cellSize,
-      board,
-      players,
-    } = this.props
+    const { cellSize, board, players } = this.props
 
-    const {
-      dimensions,
-      food,
-    } = board
+    const { dimensions, food } = board
 
     const cells = []
     const numRows = dimensions[1]
     const numCols = dimensions[0]
     const renderedGridCells = []
 
-    const layoutWidth = dimensions[1] * numRows
-    const layoutHeight = dimensions[0] * numCols
+    const layoutWidth = dimensions[1] * cellSize
+    const layoutHeight = dimensions[0] * cellSize
 
     for (let row = 0; row < numRows; row += 1) {
       const currentRow = []

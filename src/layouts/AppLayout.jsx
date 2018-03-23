@@ -14,14 +14,37 @@ class AppLayout extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      players: [],
-      board: {},
-      leaderBoard: {},
+      board: {
+        dimensions: [50, 50],
+        food: [[10, 10], [20, 20]],
+        blocks: [],
+        tick: 1,
+      },
+      players: [
+        {
+          username: 'none@null.kgn.io',
+          snake: [
+            [0, 0],
+            [0, 1],
+            [0, 2],
+            [0, 3],
+            [1, 3],
+            [2, 3],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+          ],
+          direction: 'up',
+          alive: true,
+          start_tick: 1,
+          colour: '#FF0000',
+        },
+      ],
     }
     const hostName = window.location.host
 
     // TODO MODIFY THIS ENDPOINT
-    this.chatSocket = new WebSocket(`ws://${hostName}/ws/chat/$/`)
+    this.chatSocket = new WebSocket(`ws://${hostName}/ws/game/`)
   }
 
   componentDidMount() {
@@ -53,7 +76,7 @@ class AppLayout extends PureComponent {
             players={this.state.players}
             leaderBoard={this.state.leaderBoard}
             sendKeyUpdate={this.sendKeyUpdate}
-            cellSize={20}
+            cellSize={36}
           />
         </BodyLayout>
         <FooterLayout />
