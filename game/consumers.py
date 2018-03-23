@@ -15,8 +15,11 @@ log = logging.getLogger(__name__)
 class PlayerConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         log.info('Connect')
+        scope = self.scope
         self.group_name = 'snek_game'
         self.game = None
+        self.user = scope['user']
+        log.info('User %s: Connected', self.user.email)
 
         # Join game
         await self.channel_layer.group_add(
@@ -29,7 +32,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             'game_engine',
             {
                 'type': 'player.new',
-                'id': 'get_user(whatevs).email',
+                'player': self.user.email,
                 'channel': self.channel_name,
             }
         )
@@ -52,7 +55,7 @@ class PlayerConsumer(AsyncWebsocketConsumer):
             'game_engine',
             {
                 'type': 'player.direction',
-                'player': 'me',
+                'player': self.user.email,
                 'direction': direction,
             }
         )
@@ -76,7 +79,7 @@ class GameConsumer(SyncConsumer):
         self.engine.start()
 
     def player_new(self, event):
-        log.info('Player Joined: %s', event)
+        log.info('Player Joined: %s', event['player'])
 
     def player_direction(self, event):
         log.info('Player direction changed: %s', event)
@@ -88,8 +91,4 @@ class GameConsumer(SyncConsumer):
             log.info('Bad Direction! %s', direction)
             return
 
-        set_player_direction(
-            self.game,
-            event.get('player', 'Player 1'),
-            direction,
-        )
+        set_player_direction(self.game, event['player'], direction)
