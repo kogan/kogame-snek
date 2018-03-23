@@ -19,3 +19,10 @@ To setup the development environment, run the setup script:
 ```
 
 It will ask you to create a superuser.
+
+# Running the worker
+
+```bash
+$ docker-compose up -d kogame  # start the webserver
+$ ./runworker.sh               # run the game engine
+```
