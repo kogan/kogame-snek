@@ -126,7 +126,7 @@ def add_food(game, state):
     # 1 less food than num players, but at least 1 for testing (0 for leaderboards)
     if len(state.food) < max(len(state.players) - 1, 1):
         available = set()
-        dims = game.current_board
+        dims = game.current_board.dimensions
         for row in range(dims[0]):
             for col in range(dims[1]):
                 available.add(Coords(row, col))
@@ -143,7 +143,7 @@ def add_food(game, state):
 
         pos = random.choice(list(available))
 
-        state.food.append(pos)
+        state.food.add(pos)
     return state
 
 
