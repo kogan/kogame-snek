@@ -1,4 +1,5 @@
 import logging
+import random
 
 from .players import Direction
 
@@ -22,7 +23,7 @@ def process_game_state(game, movements=None):
 
     # Drop new fruit
     log.info("dropping fruit for game: %s", game)
-    new_state = add_fruit(game, new_state)
+    new_state = add_food(game, new_state)
 
     # successful update
     return new_state
@@ -128,10 +129,30 @@ def process_collisions(game, state):
             collisions.append("%s hit a food block" % player['username'])
 
             # remove food
-            board['food'].remove(head)
+            state['food'].remove(head)
 
     return state, collisions
 
 
-def add_fruit(game, state):
+def add_food(game, state):
+
+    if len(state['food']) < game.food_number:
+        available = set()
+        for row in range(game.current_board.dimensions[0]):
+            for col in range(game.current_board.dimensions[1]):
+                available.add((row, col))
+
+        for player in state['players']:
+            for pos in player['snake']:
+                try:
+                    available.remove(tuple(pos))
+                except KeyError:
+                    continue
+
+        for food in state['food']:
+            available.remove(tuple(food))
+
+        pos = random.choice(list(available))
+
+        state['food'].append(pos)
     return state
