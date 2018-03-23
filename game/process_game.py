@@ -2,6 +2,8 @@ import logging
 
 from .models import Board
 
+from .players import Direction
+
 log = logging.getLogger(__name__)
 
 
@@ -29,3 +31,38 @@ def process_game_state(game):
 
     # successful update
     return board
+
+
+def move_block(pos, direction):
+    return (pos[0] + direction[0], pos[1] + direction[1])
+
+
+def process_movements(game, movements):
+
+    state = game.state
+    # Process movement updates for each player
+    for player in state['players']:
+
+        # update player direction if we've got a new one in movements
+        if player['username'] in movements:
+            new_direction = movements[player['username']]
+
+            # validate movement is a valid choice:
+            if (new_direction, player['direction']) in (
+                    (Direction.UP, Direction.DOWN),
+                    (Direction.DOWN, Direction.UP),
+                    (Direction.LEFT, Direction.RIGHT),
+                    (Direction.RIGHT, Direction.LEFT)
+            ):
+                log.debug("Invalid movement selected for Player: %s in %s",
+                          player['username'], game)
+        else:
+            player['direction'] = new_direction
+
+        snake = player['snake']
+
+        # update snake with new head and all but last block of current snake
+        head = move_block(player['snake'][0], player['direction'])
+        player['snake'] = [head] + snake[:-1]
+
+    return state
