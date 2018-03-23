@@ -18,11 +18,11 @@ from django.urls import path, include
 from social_auth import views as social_views
 from . import views
 
+
 urlpatterns = [
     path('', views.index),
-    path('auth', social_views.login),
     path('admin/', admin.site.urls),
     # Google Authentication
-
     path('oauth/', include('social_django.urls', namespace='social')),
+    path('login/', social_views.login, name='login'),
 ]
