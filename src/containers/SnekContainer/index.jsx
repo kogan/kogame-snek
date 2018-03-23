@@ -102,7 +102,7 @@ class SnekContainer extends Component {
         role="presentation"
         className={styles.boardLayout}
         onKeyDown={this.setDirection}
-        stystyle={{ height: `${layoutHeight}px`, width: `${layoutWidth}px` }}
+        style={{ height: `${layoutHeight}px`, width: `${layoutWidth}px` }}
       >
         {renderedGridCells}
       </div>
