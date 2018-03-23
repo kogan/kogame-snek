@@ -20,7 +20,7 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.index),
+    path('', views.index, name='index'),
     path('admin/', admin.site.urls),
     # Google Authentication
     path('oauth/', include('social_django.urls', namespace='social')),

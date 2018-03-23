@@ -6,7 +6,7 @@ from django.views.decorators.cache import never_cache
 
 @never_cache
 def login(request):
-    redirect_to = request.GET.get('next', reverse('/'))
+    redirect_to = request.GET.get('next', reverse('index'))
     url_is_safe = is_safe_url(
         url=redirect_to,
         allowed_hosts=[request.get_host()],
