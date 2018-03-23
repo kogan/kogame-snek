@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     # local apps
     'game',
     'chat',
+    # Authentication
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +55,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Authentication
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'kogame.urls'
@@ -70,6 +75,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -125,6 +132,13 @@ USE_I18N = False
 USE_L10N = False
 
 USE_TZ = True
+
+# Authentication
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 
 # Static files (CSS, JavaScript, Images)
