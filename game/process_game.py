@@ -36,6 +36,11 @@ def move_block(pos, direction):
     return [pos[0] + direction[0], pos[1] + direction[1]]
 
 
+def compare_in(pos1, pos_list):
+    # make sure we're comparing tuples to tuples
+    return tuple(pos1) in list(map(tuple, pos_list))
+
+
 def process_movements(game, movements):
 
     state = game.current_board.state
@@ -51,11 +56,11 @@ def process_movements(game, movements):
             new_direction = movements[player['username']]
 
             # validate movement is a valid choice:
-            if (new_direction, player['direction']) in (
-                    (Direction.UP, Direction.DOWN),
-                    (Direction.DOWN, Direction.UP),
-                    (Direction.LEFT, Direction.RIGHT),
-                    (Direction.RIGHT, Direction.LEFT)
+            if (new_direction, tuple(player['direction'])) in (
+                    (Direction.UP.value, Direction.DOWN.value),
+                    (Direction.DOWN.value, Direction.UP.value),
+                    (Direction.LEFT.value, Direction.RIGHT.value),
+                    (Direction.RIGHT.value, Direction.LEFT.value)
             ):
                 log.debug("Invalid movement selected for Player: %s in %s",
                           player['username'], game)
@@ -79,7 +84,7 @@ def process_collisions(game, state):
     collisions = []
     for player in state['players']:
 
-        head = list(player['snake'][0])
+        head = player['snake'][0]
 
         # wall collision
         if head[0] < 0 or head[0] >= board.dimensions[0] or \
@@ -91,14 +96,16 @@ def process_collisions(game, state):
         # other player collision
         other_players = [p for p in state['players'] if p != player and p['alive']]
         for other in other_players:
-            if head in other['snake']:
+            if compare_in(head, other['snake']):
+            #if head in other['snake']:
                 log.debug("Player %s in %s hit Player: %s",
                           player['username'], game, other['username'])
                 player['alive'] = False
                 collisions.append("%s hit %s" % (player['username'], other['username']))
 
         # self collision
-        if head in player['snake'][1:]:
+        if compare_in(head, player['snake'][1:]):
+        #if head in player['snake'][1:]:
             log.debug("Player %s in %s hit self",
                       player['username'], game)
             player['alive'] = False
@@ -113,7 +120,8 @@ def process_collisions(game, state):
         #    collisions.append("%s hit a block" % player['username'])
 
         # food
-        if head in board.state['food']:
+        if compare_in(head, board.state['food']):
+        #if head in board.state['food']:
             # Grow our tail by growth_factor in the same block as our tail
             for x in range(game.growth_factor):
                 player['snake'].append(player['snake'][-1])
