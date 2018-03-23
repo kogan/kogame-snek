@@ -13,44 +13,46 @@ import styles from './styles.scss'
 class AppLayout extends PureComponent {
   constructor(props) {
     super(props)
-    this.state = {}
-  }
-  render() {
-    // const { componentBeingRendered } = this.props
-    const players = [
-      {
-        username: 'none@null.kgn.io',
-        snake: [
-          [0, 0],
-          [0, 1],
-          [0, 2],
-          [0, 3],
-          [1, 3],
-          [2, 3],
-          [3, 3],
-          [3, 4],
-          [3, 5],
-        ],
-        direction: 'UP',
-        alive: true,
-        start_tick: 1,
-        colour: '#FF0000',
-      },
-    ]
-
-    const board = {
-      dimensions: [50, 50],
-      food: [[10, 10], [20, 20]],
-      blocks: [],
+    this.state = {
+      players: [],
+      board: {},
+      leaderBoard: {},
     }
+    const hostName = window.location.host
 
+    // TODO MODIFY THIS ENDPOINT
+    this.chatSocket = new WebSocket(`ws://${hostName}/ws/chat/$/`)
+  }
+
+  componentDidMount() {
+    const { chatSocket } = this
+    chatSocket.onmessage = (e) => {
+      const data = JSON.parse(e.data)
+      const { message } = data
+
+      this.setState({
+        players: message.players ? message.players : [],
+        board: message.board ? message.board : {},
+        leaderBoard: message.leaderBoard ? message.leaderBoard : {},
+      })
+    }
+  }
+
+  sendKeyUpdate = (updateObj) => {
+    const { chatSocket } = this
+    chatSocket.send(JSON.stringify({ updateObj }))
+  }
+
+  render() {
     return (
       <div className={styles.appLayout}>
         <HeaderLayout />
         <BodyLayout>
           <SnekContainer
-            players={players}
-            board={board}
+            board={this.state.board}
+            players={this.state.players}
+            leaderBoard={this.state.leaderBoard}
+            sendKeyUpdate={this.sendKeyUpdate}
             cellSize={20}
           />
         </BodyLayout>
