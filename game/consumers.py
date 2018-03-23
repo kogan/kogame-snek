@@ -2,11 +2,15 @@ import json
 import logging
 
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.consumer import SyncConsumer
+
+from .engine import GameEngine
+from .models import Game
 
 log = logging.getLogger(__name__)
 
 
-class GameConsumer(AsyncWebsocketConsumer):
+class PlayerConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = 'snek'
         self.room_group_name = '{}_game'.format(self.room_name)
@@ -17,6 +21,15 @@ class GameConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         await self.accept()
+
+        await self.channel_layer.send(
+            'game_engine',
+            {
+                'type': 'player.new',
+                'id': 'get_email_from_user',
+                'channel': self.channel_name,
+            }
+        )
 
     async def disconnect(self):
 
@@ -49,3 +62,15 @@ class GameConsumer(AsyncWebsocketConsumer):
             'board': board,
             'leaderboard': leaderboard,
         }))
+
+    def websocket_receive(self, event):
+        pass
+
+
+class GameConsumer(SyncConsumer):
+    def __init__(self, *args, **kwargs):
+        log.info('Game Consumer: %s %s', args, kwargs)
+        super().__init__(*args, **kwargs)
+        self.game = Game.objects.create(tick=0)
+        self.engine = GameEngine(self.game)
+        self.engine.start()
