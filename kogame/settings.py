@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'channels',
     # local apps
     'game',
-    'chat',
     'social_auth',
     # Authentication
     'social_django',
@@ -235,7 +234,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            'format': '[%(asctime)s] - %(levelname)s - %(name)s: %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -251,7 +251,7 @@ LOGGING = {
             'level': 'INFO',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'verbose',
         },
     },
     'loggers': {
@@ -259,6 +259,11 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': True,
             'level': 'INFO'
+        },
+        'django.server': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
         },
         '': {
             'handlers': ['console'],

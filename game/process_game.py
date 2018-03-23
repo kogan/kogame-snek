@@ -7,21 +7,21 @@ log = logging.getLogger(__name__)
 
 def process_game_state(game, movements=None):
 
-    if movements is None: 
+    if movements is None:
         # fetch movements from cache
-        log.debug("fetching movements for game: %s", game)
+        log.info("fetching movements for game: %s", game)
         movements = get_movements(game)
 
     # Update all snakes with their directions
-    log.debug("pricessing movements for game: %s", game)
+    log.info("processing movements for game: %s", game)
     new_state = process_movements(game, movements)
 
     # Has anyone hit a wall or another snake?
-    log.debug("processing collisions for game: %s", game)
+    log.info("processing collisions for game: %s", game)
     new_state, collisions = process_collisions(game, new_state)
 
     # Drop new fruit
-    log.debug("dropping fruit for game: %s", game)
+    log.info("dropping fruit for game: %s", game)
     new_state = add_fruit(game, new_state)
 
     # successful update
@@ -62,9 +62,7 @@ def process_movements(game, movements):
                     (Direction.LEFT.value, Direction.RIGHT.value),
                     (Direction.RIGHT.value, Direction.LEFT.value)
             ):
-                log.debug("Invalid movement selected for Player: %s in %s",
-                          player['username'], game)
-
+                log.info("Invalid movement selected for Player: %s in %s", player['username'], game)
             else:
                 player['direction'] = new_direction
 
@@ -87,9 +85,11 @@ def process_collisions(game, state):
         head = player['snake'][0]
 
         # wall collision
-        if head[0] < 0 or head[0] >= board.dimensions[0] or \
-                head[1] < 0 or head[1] >= board.dimensions[1]:
-            log.debug("Player %s in %s hit a wall", player['username'], game)
+        if (
+            head[0] < 0 or head[0] >= board.dimensions[0] or
+            head[1] < 0 or head[1] >= board.dimensions[1]
+        ):
+            log.info("Player %s in %s hit a wall", player['username'], game)
             player['alive'] = False
             collisions.append("%s hit a wall" % player['username'])
 
@@ -98,23 +98,21 @@ def process_collisions(game, state):
         for other in other_players:
             if compare_in(head, other['snake']):
             #if head in other['snake']:
-                log.debug("Player %s in %s hit Player: %s",
-                          player['username'], game, other['username'])
+                log.info("Player %s in %s hit Player: %s", player['username'], game, other['username'])
                 player['alive'] = False
                 collisions.append("%s hit %s" % (player['username'], other['username']))
 
         # self collision
         if compare_in(head, player['snake'][1:]):
         #if head in player['snake'][1:]:
-            log.debug("Player %s in %s hit self",
-                      player['username'], game)
+            log.info("Player %s in %s hit self", player['username'], game)
             player['alive'] = False
             collisions.append("%s hit self" % player['username'])
 
         # blocks
         #blocks = {(x, y): username for (x, y, username) in board.state['blocks']}
         #if tuple(head) in blocks:
-        #    log.debug("Player %s hit a block at %s from player %s",
+        #    log.info("Player %s hit a block at %s from player %s",
         #              player['username'], head, blocks[head])
         #    player['alive'] = False
         #    collisions.append("%s hit a block" % player['username'])
@@ -126,8 +124,7 @@ def process_collisions(game, state):
             for x in range(game.growth_factor):
                 player['snake'].append(player['snake'][-1])
 
-            log.debug("Player %s ate food at pos %s in %s",
-                      player['username'], head, game)
+            log.info("Player %s ate food at pos %s in %s", player['username'], head, game)
             collisions.append("%s hit a food block" % player['username'])
 
             # remove food

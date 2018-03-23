@@ -1,10 +1,10 @@
 from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
-from channels.sessions import SessionMiddlewareStack
+from channels.auth import AuthMiddlewareStack
 from django.conf.urls import url
 from game.consumers import GameConsumer, PlayerConsumer
 
 application = ProtocolTypeRouter({
-    "websocket": SessionMiddlewareStack(
+    "websocket": AuthMiddlewareStack(
         URLRouter([
             url(r'^ws/game/$', PlayerConsumer),
         ]),

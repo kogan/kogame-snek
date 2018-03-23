@@ -1,6 +1,7 @@
 from enum import Enum, unique
-from typing import Mapping
+from typing import List, Mapping
 
+import attr
 from django.core.cache import cache
 from redis.client import StrictRedis
 
@@ -11,6 +12,20 @@ class Direction(Enum):
     DOWN = (0, 1)
     LEFT = (-1, 0)
     RIGHT = (1, 0)
+
+
+@attr.s
+class Coords:
+    x: int = attr.ib(validator=attr.validators.instance_of(int))
+    y: int = attr.ib(validator=attr.validators.instance_of(int))
+
+
+@attr.s
+class Player:
+    username = attr.ib()
+    snake: List[Coords] = attr.ib()
+    alive: bool = attr.ib(validator=attr.validators.instance_of(bool))
+    direction: Direction = attr.ib(validator=attr.validators.in_(Direction))
 
 
 def set_player_direction(game, player: str, direction: Direction):
