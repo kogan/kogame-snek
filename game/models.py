@@ -1,13 +1,15 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
+from .process_game import process_game_state
+
 
 class Game(models.Model):
 
     growth_factor = 2  # How much to grow if we eat food
 
     started = models.DateTimeField(auto_now_add=True)
-    tick = models.PositiveIntegerField()
+    tick = models.PositiveIntegerField(db_index=True)
 
     def __str__(self):
         return 'Game<pk={0}, tick={1}, started={2}>'.format(
@@ -18,10 +20,17 @@ class Game(models.Model):
     def current_board(self):
         return self.board_set.order_by('-tick').first()
 
+    def tick(self):
+        new_state = process_game_state(self)
+        board = Board.objects.create(state=new_state, game=self)
+        self.tick += 1
+        self.save()
+        return board.state
+
 
 class Board(models.Model):
 
-    dimensions = [50,50]
+    dimensions = [50, 50]
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     tick = models.PositiveIntegerField()

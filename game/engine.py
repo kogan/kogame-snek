@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 
 class GameEngine(threading.Thread):
-    def __init__(self, **kwargs):
+    def __init__(self, game, room_name, **kwargs):
         log.info('Init GameEngine...')
         super(GameEngine, self).__init__(
             daemon=True,
