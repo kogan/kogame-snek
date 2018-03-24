@@ -96,9 +96,10 @@ class SnekContainer extends PureComponent {
       for (let snakePos = 0; snakePos < player.snake.length; snakePos += 1) {
         const { x: snakeX, y: snakeY } = player.snake[snakePos]
         if (snakePos === 0) {
-          cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'head' }
-        } else if (snakePos === (player.snake.length - 1)) {
+          // TODO: for some reason this is backward
           cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'tail' }
+        } else if (snakePos === (player.snake.length - 1)) {
+          cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'head' }
         } else {
           cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'body' }
         }
