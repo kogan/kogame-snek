@@ -146,7 +146,7 @@ class GameEngine(threading.Thread):
         while True:
             state = self.game.game_tick()
             self.broadcast_state(state)
-            time.sleep(2)
+            time.sleep(0.5)
 
     def broadcast_state(self, state):
         async_to_sync(self.channel_layer.group_send)(

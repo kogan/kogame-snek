@@ -36,6 +36,14 @@ def process_game_state(game, movements=None):
     return new_state
 
 
+INVALID_MOVES = {
+    (Direction.UP, Direction.DOWN),
+    (Direction.DOWN, Direction.UP),
+    (Direction.LEFT, Direction.RIGHT),
+    (Direction.RIGHT, Direction.LEFT),
+}
+
+
 def process_movements(game, movements) -> State:
 
     state: State = game.current_board.loaded_state
@@ -49,15 +57,10 @@ def process_movements(game, movements) -> State:
         # update player direction if we've got a new one in movements
         if player.username in movements:
             new_direction = movements[player.username]
-            log.info('New Direction: %s', new_direction)
-            log.info('Old Direction: %s', player.direction.value)
             # validate movement is a valid choice:
-            if (new_direction.value, player.direction.value) in (
-                    (Direction.UP.value, Direction.DOWN.value),
-                    (Direction.DOWN.value, Direction.UP.value),
-                    (Direction.LEFT.value, Direction.RIGHT.value),
-                    (Direction.RIGHT.value, Direction.LEFT.value)
-            ):
+            if new_direction == player.direction:
+                pass
+            elif (new_direction, player.direction) in INVALID_MOVES:
                 log.info("Invalid movement selected for Player: %s in %s", player.username, game)
             else:
                 player.direction = new_direction

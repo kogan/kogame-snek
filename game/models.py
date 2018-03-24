@@ -34,7 +34,7 @@ class Game(models.Model):
 
 class Board(models.Model):
 
-    dimensions = [50, 50]
+    dimensions = [25, 25]
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     tick = models.PositiveIntegerField(default=0)
