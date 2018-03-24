@@ -88,7 +88,7 @@ class SnekContainer extends PureComponent {
 
     for (let foodPos = 0; foodPos < food.length; foodPos += 1) {
       const { x: foodX, y: foodY } = food[foodPos]
-      cells[foodX][foodY] = { cellType: 'food' }
+      cells[foodY][foodX] = { cellType: 'food' }
     }
 
     for (let playerPos = 0; playerPos < players.length; playerPos += 1) {
@@ -96,11 +96,11 @@ class SnekContainer extends PureComponent {
       for (let snakePos = 0; snakePos < player.snake.length; snakePos += 1) {
         const { x: snakeX, y: snakeY } = player.snake[snakePos]
         if (snakePos === 0) {
-          cells[snakeX][snakeY] = { cellType: 'snake', bodyType: 'head' }
+          cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'head' }
         } else if (snakePos === (player.snake.length - 1)) {
-          cells[snakeX][snakeY] = { cellType: 'snake', bodyType: 'tail' }
+          cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'tail' }
         } else {
-          cells[snakeX][snakeY] = { cellType: 'snake', bodyType: 'body' }
+          cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'body' }
         }
       }
     }
