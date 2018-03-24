@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .models import Board, Game
+from .models import Game
 from .engine import Direction, get_player_directions, set_player_direction
 
 

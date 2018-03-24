@@ -241,8 +241,8 @@ class GameEngine(threading.Thread):
                 player.alive = False
 
             # blocks
-            #blocks = {(x, y): username for (x, y, username) in board.state['blocks']}
-            #if tuple(head) in blocks:
+            # blocks = {(x, y): username for (x, y, username) in board.state['blocks']}
+            # if tuple(head) in blocks:
             #    log.info("Player %s hit a block at %s from player %s",
             #              player['username'], head, blocks[head])
             #    player['alive'] = False
