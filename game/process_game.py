@@ -49,9 +49,10 @@ def process_movements(game, movements) -> State:
         # update player direction if we've got a new one in movements
         if player.username in movements:
             new_direction = movements[player.username]
-
+            log.info('New Direction: %s', new_direction)
+            log.info('Old Direction: %s', player.direction.value)
             # validate movement is a valid choice:
-            if (new_direction, tuple(player.direction.value)) in (
+            if (new_direction.value, player.direction.value) in (
                     (Direction.UP.value, Direction.DOWN.value),
                     (Direction.DOWN.value, Direction.UP.value),
                     (Direction.LEFT.value, Direction.RIGHT.value),
@@ -73,6 +74,8 @@ def process_collisions(game, state: State):
 
     collisions = []
     for player in state.players:
+        if not player.alive:
+            continue
 
         head = player.snake[0]
 

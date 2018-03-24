@@ -82,7 +82,7 @@ class State:
     def from_dict(state_dict):
         return State(
             board=Board.from_dict(state_dict['board']),
-            players=[Player.from_dict(**player) for player in state_dict['players']],
+            players=[Player.from_dict(player) for player in state_dict['players']],
         )
 
     def for_json(self):
