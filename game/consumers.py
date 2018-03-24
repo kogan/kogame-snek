@@ -5,7 +5,7 @@ from channels.consumer import SyncConsumer
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .engine import Direction, GameEngine, join_queue, set_player_direction
-from .models import Board, Game
+from .models import Game
 
 log = logging.getLogger(__name__)
 
@@ -68,6 +68,9 @@ class PlayerConsumer(AsyncWebsocketConsumer):
 
 class GameConsumer(SyncConsumer):
     def __init__(self, *args, **kwargs):
+        """
+        Created on demand when the first player joins.
+        """
         log.info('Game Consumer: %s %s', args, kwargs)
         super().__init__(*args, **kwargs)
         self.group_name = 'snek_game'
