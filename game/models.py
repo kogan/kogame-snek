@@ -2,9 +2,6 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.functional import cached_property
 
-from .engine import State, Board as BoardState, Coords
-from .process_game import process_game_state
-
 
 class Game(models.Model):
 
@@ -22,39 +19,13 @@ class Game(models.Model):
     def current_board(self) -> 'Board':
         return self.board_set.order_by('-tick').first()
 
-    def game_tick(self):
-        self.tick += 1
-        new_state = process_game_state(self)
-        new_state.board.tick = self.tick
-        dict_state = new_state.for_json()
-        board = Board.objects.create(state=dict_state, game=self, tick=self.tick)
-        self.save()
-        return board.state
-
 
 class Board(models.Model):
-
-    dimensions = [25, 25]
-
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     tick = models.PositiveIntegerField(default=0)
     state = JSONField()
-
-    def save(self, *args, **kwargs):
-        if not self.pk and not self.state:
-            state = State(board=BoardState(dimensions=Coords(*self.dimensions)))
-            self.state = state.for_json()
-        super(Board, self).save(*args, **kwargs)
 
     def __str__(self):
         return 'Board<id={0}, tick={1}>: {2}'.format(
             self.pk, self.tick, self.game
         )
-
-    @cached_property
-    def loaded_state(self) -> State:
-        return State.from_dict(self.state)
-
-    def player_count(self):
-        state = self.loaded_state
-        return sum(p.alive for p in state.players)
