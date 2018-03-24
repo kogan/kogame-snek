@@ -38,6 +38,15 @@ class Player:
     alive: bool = attr.ib(validator=attr.validators.instance_of(bool))
     direction: Direction = attr.ib(validator=attr.validators.in_(Direction))
 
+    @staticmethod
+    def from_dict(state_dict):
+        return Player(
+            username=state_dict['username'],
+            snake=[Coords(**part) for part in state_dict['snake']],
+            alive=state_dict['alive'],
+            direction=Direction[state_dict['direction']],
+        )
+
     def move(self):
         """
         Updates the snake, moving the head in direction, and chopping the last
@@ -48,20 +57,43 @@ class Player:
 
 
 @attr.s
-class State:
-    players: List[Player] = attr.ib()
+class Board:
+    dimensions: Coords = attr.ib(default=Coords(50, 50))
+    tick: int = attr.ib(default=0, validator=attr.validators.instance_of(int))
     food: Set[Coords] = attr.ib(default=attr.Factory(set))
     blocks: Set[Coords] = attr.ib(default=attr.Factory(set))
-    tick: int = attr.ib(default=0, validator=attr.validators.instance_of(int))
+
+    @staticmethod
+    def from_dict(state_dict):
+        return Board(
+            dimensions=Coords(**state_dict['dimensions']),
+            tick=state_dict['tick'],
+            food={Coords(**food) for food in state_dict['food']},
+            blocks={Coords(**block) for block in state_dict['blocks']},
+        )
+
+
+@attr.s
+class State:
+    board: Board = attr.ib(default=attr.Factory(Board), validator=attr.validators.instance_of(Board))
+    players: List[Player] = attr.ib(default=attr.Factory(list))
 
     @staticmethod
     def from_dict(state_dict):
         return State(
-            players=[Player(**player) for player in state_dict['players']],
-            food={Coords(**food) for food in state_dict['food']},
-            blocks={Coords(**block) for block in state_dict['blocks']},
-            tick=state_dict['tick']
+            board=Board.from_dict(state_dict['board']),
+            players=[Player.from_dict(**player) for player in state_dict['players']],
         )
+
+    def for_json(self):
+        """
+        Converts state into a dictionary that can be encoded and decoded by
+        JSON. Nececessary because Enums aren't encoded correctly.
+        """
+        dict_state = attr.asdict(self)
+        for player in dict_state['players']:
+            player['direction'] = player['direction'].name
+        return dict_state
 
 
 def set_player_direction(game, username: str, direction: Direction):

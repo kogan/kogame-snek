@@ -17,8 +17,8 @@ class SnekContainer extends PureComponent {
   static defaultProps = {
     cellSize: 36,
     board: {
-      dimensions: [50, 50],
-      food: [[10, 10], [20, 20]],
+      dimensions: { x: 50, y: 50 },
+      food: [{ x: 10, y: 10 }, { x: 20, y: 20 }],
       blocks: [],
       tick: 1,
     },
@@ -26,19 +26,19 @@ class SnekContainer extends PureComponent {
       {
         username: 'none@null.kgn.io',
         snake: [
-          [0, 0],
-          [0, 1],
-          [0, 2],
-          [0, 3],
-          [1, 3],
-          [2, 3],
-          [3, 3],
-          [3, 4],
-          [3, 5],
+          { x: 0, y: 0 },
+          { x: 0, y: 1 },
+          { x: 0, y: 2 },
+          { x: 0, y: 3 },
+          { x: 1, y: 3 },
+          { x: 2, y: 3 },
+          { x: 3, y: 3 },
+          { x: 3, y: 4 },
+          { x: 3, y: 5 },
         ],
-        direction: 's',
+        direction: 'DOWN',
         alive: true,
-        start_tick: 1,
+        start_tick: 0,
         colour: '#FF0000',
       },
     ],
@@ -72,12 +72,11 @@ class SnekContainer extends PureComponent {
     const { dimensions, food } = board
 
     const cells = []
-    const numRows = dimensions[1]
-    const numCols = dimensions[0]
+    const { y: numRows, x: numCols } = dimensions
     const renderedGridCells = []
 
-    const layoutWidth = dimensions[1] * cellSize
-    const layoutHeight = dimensions[0] * cellSize
+    const layoutWidth = numRows * cellSize
+    const layoutHeight = numCols * cellSize
 
     for (let row = 0; row < numRows; row += 1) {
       const currentRow = []
@@ -88,16 +87,14 @@ class SnekContainer extends PureComponent {
     }
 
     for (let foodPos = 0; foodPos < food.length; foodPos += 1) {
-      const foodX = food[foodPos][0]
-      const foodY = food[foodPos][1]
+      const { x: foodX, y: foodY } = food[foodPos]
       cells[foodX][foodY] = { cellType: 'food' }
     }
 
     for (let playerPos = 0; playerPos < players.length; playerPos += 1) {
       const player = players[playerPos]
       for (let snakePos = 0; snakePos < player.snake.length; snakePos += 1) {
-        const snakeX = player.snake[snakePos][0]
-        const snakeY = player.snake[snakePos][1]
+        const { x: snakeX, y: snakeY } = player.snake[snakePos]
         if (snakePos === 0) {
           cells[snakeX][snakeY] = { cellType: 'snake', bodyType: 'head' }
         } else if (snakePos === (player.snake.length - 1)) {

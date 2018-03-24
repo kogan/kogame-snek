@@ -51,7 +51,7 @@ def process_movements(game, movements) -> State:
             new_direction = movements[player.username]
 
             # validate movement is a valid choice:
-            if (new_direction, tuple(player.direction)) in (
+            if (new_direction, tuple(player.direction.value)) in (
                     (Direction.UP.value, Direction.DOWN.value),
                     (Direction.DOWN.value, Direction.UP.value),
                     (Direction.LEFT.value, Direction.RIGHT.value),
@@ -108,7 +108,7 @@ def process_collisions(game, state: State):
         #    collisions.append("%s hit a block" % player['username'])
 
         # food
-        if head in state.food:
+        if head in state.board.food:
             # Grow our tail by growth_factor in the same block as our tail
             for x in range(game.growth_factor):
                 player.snake.append(player.snake[-1])
@@ -117,14 +117,14 @@ def process_collisions(game, state: State):
             collisions.append("%s hit a food block" % player.username)
 
             # remove food
-            state.food.remove(head)
+            state.board.food.remove(head)
 
     return state, collisions
 
 
 def add_food(game, state):
     # 1 less food than num players, but at least 1 for testing (0 for leaderboards)
-    if len(state.food) < max(len(state.players) - 1, 1):
+    if len(state.board.food) < max(len(state.players) - 1, 1):
         available = set()
         dims = game.current_board.dimensions
         for row in range(dims[0]):
@@ -138,12 +138,12 @@ def add_food(game, state):
                 except KeyError:
                     continue
 
-        for food in state.food:
+        for food in state.board.food:
             available.remove(food)
 
         pos = random.choice(list(available))
 
-        state.food.add(pos)
+        state.board.food.add(pos)
     return state
 
 
@@ -164,8 +164,8 @@ def process_new_players(game, state):
     # generate random position and add to state
     dims = board.dimensions
     c = Coords(
-        x=random.randint(0, dims[0]),
-        y=random.randint(0, dims[1])
+        x=random.randint(0, dims[0] - 1),
+        y=random.randint(0, dims[1] - 1)
     )
     # direct it away from the closest walls, and stretch out that direction 3 squares
     x_mid, y_mid = dims[0] // 2, dims[1] // 2
