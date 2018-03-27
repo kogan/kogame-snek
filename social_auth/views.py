@@ -1,3 +1,4 @@
+from django.contrib.auth import logout
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.http import is_safe_url
@@ -22,3 +23,9 @@ def login(request):
                 'next': redirect_to if url_is_safe else '',
             }
         )
+
+
+@never_cache
+def logout_view(request):
+    logout(request)
+    return redirect('/')

@@ -25,4 +25,5 @@ urlpatterns = [
     # Google Authentication
     path('oauth/', include('social_django.urls', namespace='social')),
     path('login/', social_views.login, name='login'),
+    path('logout/', social_views.logout_view, name='logout'),
 ]
