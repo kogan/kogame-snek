@@ -24,7 +24,7 @@ services:
       - .:/app
       - ~/.ipython:/home/django/.ipython
     ports:
-      - "127.0.0.1:8001:8001"
+      - "0.0.0.0:8001:8001"
     links:
       - postgres
       - redis
