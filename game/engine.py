@@ -143,7 +143,7 @@ class GameEngine(threading.Thread):
     }
 
     dimensions = [30, 30]
-    tick_rate = 0.25
+    tick_rate = 0.2
 
     def __init__(self, game, group_name, **kwargs):
         log.info('Init GameEngine...')
