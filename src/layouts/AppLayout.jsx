@@ -15,31 +15,31 @@ class AppLayout extends PureComponent {
     super(props)
     this.state = {
       board: {
-        dimensions: { x: 50, y: 50 },
-        food: [{ x: 10, y: 10 }, { x: 20, y: 20 }],
+        dimensions: [50, 50],
+        food: [[10, 10], [20, 20]],
         blocks: [],
         tick: 0,
       },
-      players: [
-        {
+      players: {
+        'none@null.kgn.io': {
           username: 'none@null.kgn.io',
           snake: [
-            { x: 0, y: 0 },
-            { x: 0, y: 1 },
-            { x: 0, y: 2 },
-            { x: 0, y: 3 },
-            { x: 1, y: 3 },
-            { x: 2, y: 3 },
-            { x: 3, y: 3 },
-            { x: 3, y: 4 },
-            { x: 3, y: 5 },
+            [0, 0],
+            [0, 1],
+            [0, 2],
+            [0, 3],
+            [1, 3],
+            [2, 3],
+            [3, 3],
+            [3, 4],
+            [3, 5],
           ],
           direction: 'UP',
           alive: true,
           start_tick: 1,
           colour: '#FF0000',
         },
-      ],
+      },
     }
     const hostName = window.location.host
 
