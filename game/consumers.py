@@ -92,4 +92,5 @@ class GameConsumer(SyncConsumer):
             log.info('Bad Direction! %s', direction)
             return
 
+        self.engine.set_player_direction(event['player'], direction)
         set_player_direction(self.game, event['player'], direction)
