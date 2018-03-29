@@ -2,9 +2,9 @@ import logging
 import random
 import threading
 import time
-from collections import OrderedDict
+from collections import OrderedDict, deque
 from enum import Enum, unique
-from typing import List, Mapping, Optional, Set
+from typing import Mapping, Optional, Set
 
 import attr
 from asgiref.sync import async_to_sync
@@ -37,7 +37,7 @@ class Coords:
 @attr.s
 class Player:
     username = attr.ib()
-    snake: List[Coords] = attr.ib()
+    snake: deque = attr.ib()
     alive: bool = attr.ib(validator=attr.validators.instance_of(bool))
     direction: Direction = attr.ib(validator=attr.validators.in_(Direction))
 
@@ -45,7 +45,7 @@ class Player:
     def from_dict(state_dict):
         return Player(
             username=state_dict['username'],
-            snake=[Coords(**part) for part in state_dict['snake']],
+            snake=deque(Coords(**part) for part in state_dict['snake']),
             alive=state_dict['alive'],
             direction=Direction[state_dict['direction']],
         )
@@ -64,7 +64,8 @@ class Player:
         block.
         """
         new_head = self.snake[0].move(self.direction)
-        self.snake = [new_head] + self.snake[:-1]
+        self.snake.appendleft(new_head)
+        self.snake.pop()
 
 
 @attr.s
@@ -241,9 +242,12 @@ class GameEngine(threading.Thread):
                     player.alive = False
 
             # self collision
-            if head in player.snake[1:]:
-                log.info("Player %s in %s hit self", player.username, game)
-                player.alive = False
+            pos = 1
+            while pos < len(player.snake):
+                if player.snake[pos] == head:
+                    log.info("Player %s in %s hit self", player.username, game)
+                    player.alive = False
+                pos += 1
 
             # blocks
             # blocks = {(x, y): username for (x, y, username) in board.state['blocks']}
@@ -303,7 +307,7 @@ class GameEngine(threading.Thread):
                 self.join_queue(player, at_front=True)
                 return state
 
-        p = Player(username=username, snake=snake, alive=True, direction=direction)
+        p = Player(username=username, snake=deque(snake), alive=True, direction=direction)
         state.players[username] = p
         log.info('New snake added for %s', username)
         return state
