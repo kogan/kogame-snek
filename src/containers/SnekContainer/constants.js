@@ -5,4 +5,8 @@ export const KEYS = {
   up: 38,
   right: 39,
   down: 40,
+  a: 65,
+  w: 87,
+  d: 68,
+  s: 83,
 }

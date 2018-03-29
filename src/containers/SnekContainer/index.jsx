@@ -50,15 +50,19 @@ class SnekContainer extends PureComponent {
 
     switch (keyCode) {
       case KEYS.left:
+      case KEYS.a:
         sendKeyUpdate({ direction: 'LEFT' })
         break
       case KEYS.right:
+      case KEYS.d:
         sendKeyUpdate({ direction: 'RIGHT' })
         break
       case KEYS.up:
+      case KEYS.w:
         sendKeyUpdate({ direction: 'UP' })
         break
       case KEYS.down:
+      case KEYS.s:
         sendKeyUpdate({ direction: 'DOWN' })
         break
       default:
