@@ -9,8 +9,6 @@ from typing import List, Mapping, Optional, Set
 import attr
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from django.core.cache import cache
-from redis.client import StrictRedis
 
 log = logging.getLogger(__name__)
 
@@ -32,6 +30,9 @@ class Coords:
         dx, dy = direction.value
         return Coords(self.x + dx, self.y + dy)
 
+    def render(self):
+        return (self.x, self.y)
+
 
 @attr.s
 class Player:
@@ -48,6 +49,14 @@ class Player:
             alive=state_dict['alive'],
             direction=Direction[state_dict['direction']],
         )
+
+    def render(self):
+        return {
+            'username': self.username,
+            'snake': [coords.render() for coords in self.snake],
+            'alive': self.alive,
+            'direction': self.direction.name,
+        }
 
     def move(self):
         """
@@ -74,11 +83,19 @@ class Board:
             blocks={Coords(**block) for block in state_dict['blocks']},
         )
 
+    def render(self):
+        return {
+            'dimensions': self.dimensions.render(),
+            'tick': self.tick,
+            'food': [f.render() for f in self.food],
+            'blocks': [b.render() for b in self.blocks],
+        }
+
 
 @attr.s
 class State:
     board: Board = attr.ib(default=attr.Factory(Board), validator=attr.validators.instance_of(Board))
-    players: List[Player] = attr.ib(default=attr.Factory(list))
+    players: Mapping[str, Player] = attr.ib(default=attr.Factory(dict))
 
     @staticmethod
     def from_dict(state_dict):
@@ -87,15 +104,11 @@ class State:
             players=[Player.from_dict(player) for player in state_dict['players']],
         )
 
-    def for_json(self):
-        """
-        Converts state into a dictionary that can be encoded and decoded by
-        JSON. Nececessary because Enums aren't encoded correctly.
-        """
-        dict_state = attr.asdict(self)
-        for player in dict_state['players']:
-            player['direction'] = player['direction'].name
-        return dict_state
+    def render(self):
+        return {
+            'board': self.board.render(),
+            'players': {username: p.render() for username, p in self.players.items()}
+        }
 
 
 class GameEngine(threading.Thread):
@@ -133,7 +146,7 @@ class GameEngine(threading.Thread):
             time.sleep(self.tick_rate)
 
     def broadcast_state(self, state: State):
-        state_json = state.for_json()
+        state_json = state.render()
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
             {
@@ -182,7 +195,7 @@ class GameEngine(threading.Thread):
     def process_movements(self, game, state: State, movements) -> State:
         log.info('Processing movements for game: %s', game)
         # Process movement updates for each player
-        for player in state.players:
+        for player in state.players.values():
 
             # only update alive players
             if not player.alive:
@@ -206,7 +219,7 @@ class GameEngine(threading.Thread):
 
     def process_collisions(self, game, state: State) -> State:
         log.info('Processing collisions for game: %s', game)
-        for player in state.players:
+        for player in state.players.values():
             if not player.alive:
                 continue
 
@@ -221,7 +234,7 @@ class GameEngine(threading.Thread):
                 player.alive = False
 
             # other player collision
-            other_players = [p for p in state.players if p != player and p.alive]
+            other_players = [p for p in state.players.values() if p != player and p.alive]
             for other in other_players:
                 if head in other.snake:
                     log.info("Player %s hit Player %s in game: %s", player.username, other.username, game)
@@ -259,10 +272,9 @@ class GameEngine(threading.Thread):
         if not username:
             return state
 
-        dead = next((player for player in state.players if player.username == username), None)
-        if dead:
-            log.info('Found dead snake for %s, removing.', username)
-            state.players.remove(dead)
+        player = state.players.pop(username, None)
+        if player:
+            log.info('Player %s is rejoining. (Alive? %r)', username, player.alive)
 
         log.info('Trying to add new snake for %s', username)
 
@@ -284,7 +296,7 @@ class GameEngine(threading.Thread):
         # check that we don't intersect with any other snek, otherwise put back
         # into queue and wait for next tick (could be costly looping and checking)
         set_snake = set(snake)
-        for player in state.players:
+        for player in state.players.values():
             if player.alive and set(player.snake) & set_snake:
                 log.info('New snake was created on existing snake for %s', username)
                 # collision, put player back in queue
@@ -292,7 +304,7 @@ class GameEngine(threading.Thread):
                 return state
 
         p = Player(username=username, snake=snake, alive=True, direction=direction)
-        state.players.append(p)
+        state.players[username] = p
         log.info('New snake added for %s', username)
         return state
 
@@ -306,12 +318,9 @@ class GameEngine(threading.Thread):
                 for col in range(dims[1]):
                     available.add(Coords(row, col))
 
-            for player in state.players:
+            for player in state.players.values():
                 for pos in player.snake:
-                    try:
-                        available.remove(pos)
-                    except KeyError:
-                        continue
+                    available.discard(pos)
 
             for food in state.board.food:
                 available.remove(food)

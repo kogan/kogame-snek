@@ -10,15 +10,15 @@ class SnekContainer extends PureComponent {
   static propTypes = {
     cellSize: PropTypes.number,
     board: PropTypes.object,
-    players: PropTypes.array,
+    players: PropTypes.object,
     sendKeyUpdate: PropTypes.func,
   };
 
   static defaultProps = {
     cellSize: 36,
     board: {
-      dimensions: { x: 50, y: 50 },
-      food: [{ x: 10, y: 10 }, { x: 20, y: 20 }],
+      dimensions: [50, 50],
+      food: [[10, 10], [20, 20]],
       blocks: [],
       tick: 1,
     },
@@ -26,15 +26,15 @@ class SnekContainer extends PureComponent {
       {
         username: 'none@null.kgn.io',
         snake: [
-          { x: 0, y: 0 },
-          { x: 0, y: 1 },
-          { x: 0, y: 2 },
-          { x: 0, y: 3 },
-          { x: 1, y: 3 },
-          { x: 2, y: 3 },
-          { x: 3, y: 3 },
-          { x: 3, y: 4 },
-          { x: 3, y: 5 },
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [1, 3],
+          [2, 3],
+          [3, 3],
+          [3, 4],
+          [3, 5],
         ],
         direction: 'DOWN',
         alive: true,
@@ -76,7 +76,7 @@ class SnekContainer extends PureComponent {
     const { dimensions, food } = board
 
     const cells = []
-    const { y: numRows, x: numCols } = dimensions
+    const [numCols, numRows] = dimensions
     const renderedGridCells = []
 
     const layoutWidth = numRows * cellSize
@@ -91,14 +91,14 @@ class SnekContainer extends PureComponent {
     }
 
     for (let foodPos = 0; foodPos < food.length; foodPos += 1) {
-      const { x: foodX, y: foodY } = food[foodPos]
+      const [foodX, foodY] = food[foodPos]
       cells[foodY][foodX] = { cellType: 'food' }
     }
 
-    for (let playerPos = 0; playerPos < players.length; playerPos += 1) {
-      const player = players[playerPos]
+    Object.keys(players).forEach((playerName) => {
+      const player = players[playerName]
       for (let snakePos = 0; snakePos < player.snake.length; snakePos += 1) {
-        const { x: snakeX, y: snakeY } = player.snake[snakePos]
+        const [snakeX, snakeY] = player.snake[snakePos]
         if (snakePos === 0) {
           // TODO: for some reason this is backward
           cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'tail' }
@@ -108,7 +108,7 @@ class SnekContainer extends PureComponent {
           cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'body' }
         }
       }
-    }
+    })
 
     for (let row = 0; row < numRows; row += 1) {
       for (let col = 0; col < numCols; col += 1) {
@@ -121,6 +121,7 @@ class SnekContainer extends PureComponent {
         />)
       }
     }
+
     return (
       <div
         tabIndex="0"
