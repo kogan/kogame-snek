@@ -4,7 +4,7 @@ import logging
 from channels.consumer import SyncConsumer
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .engine import Direction, GameEngine, join_queue, set_player_direction
+from .engine import Direction, GameEngine
 from .models import Game
 
 log = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ class GameConsumer(SyncConsumer):
 
     def player_new(self, event):
         log.info('Player Joined: %s', event['player'])
-        join_queue(self.game, event['player'])
+        self.engine.join_queue(event['player'])
 
     def player_direction(self, event):
         log.info('Player direction changed: %s', event)
@@ -93,4 +93,3 @@ class GameConsumer(SyncConsumer):
             return
 
         self.engine.set_player_direction(event['player'], direction)
-        set_player_direction(self.game, event['player'], direction)

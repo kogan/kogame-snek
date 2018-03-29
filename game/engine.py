@@ -2,8 +2,9 @@ import logging
 import random
 import threading
 import time
+from collections import OrderedDict
 from enum import Enum, unique
-from typing import List, Mapping, Set
+from typing import List, Mapping, Optional, Set
 
 import attr
 from asgiref.sync import async_to_sync
@@ -97,24 +98,6 @@ class State:
         return dict_state
 
 
-def join_queue(game, username: str, at_front=False):
-    log.info('Player %s joining queue (Front? %r) for game: %s', username, at_front, game)
-    redis: StrictRedis = cache.client.get_client()
-    hash_key = f'playerqueue.{game.pk}'
-    if at_front:
-        return redis.lpush(hash_key, username)
-    return redis.rpush(hash_key, username)
-
-
-def get_queued_player(game) -> str:
-    log.info('Getting next player in queue for game: %s', game)
-    # only one player can join at a time
-    redis: StrictRedis = cache.client.get_client()
-    hash_key = f'playerqueue.{game.pk}'
-    username = redis.lpop(hash_key)
-    return username if username is None else username.decode('utf8')
-
-
 class GameEngine(threading.Thread):
     INVALID_MOVES = {
         (Direction.UP, Direction.DOWN),
@@ -139,6 +122,8 @@ class GameEngine(threading.Thread):
         self.state = State(board=Board(dimensions=Coords(*self.dimensions)))
         self.direction_changes: Mapping[str, Direction] = {}
         self.direction_lock = threading.Lock()
+        self.player_queue = OrderedDict()
+        self.player_lock = threading.Lock()
 
     def run(self):
         log.info('Starting engine loop')
@@ -176,6 +161,23 @@ class GameEngine(threading.Thread):
         log.info('Setting player direction: %s (%s)', player, direction.name)
         with self.direction_lock:
             self.direction_changes[player] = direction
+
+    def join_queue(self, player: str, at_front=False):
+        log.info('Player %s joining queue (Front? %r)', player, at_front)
+        with self.player_lock:
+            self.player_queue[player] = True
+            if at_front:
+                self.player_queue.move_to_end(player, last=False)
+
+    def get_queued_player(self) -> Optional[str]:
+        log.info('Getting next player in queue')
+        with self.player_lock:
+            try:
+                player, _ = self.player_queue.popitem(last=False)
+                return player
+            except KeyError:
+                # no player queued
+                return None
 
     def process_movements(self, game, state: State, movements) -> State:
         log.info('Processing movements for game: %s', game)
@@ -253,7 +255,7 @@ class GameEngine(threading.Thread):
 
     def process_new_players(self, game, state: State) -> State:
         log.info('Processing new players for game: %s', game)
-        username = get_queued_player(game)
+        username = self.get_queued_player()
         if not username:
             return state
 
@@ -286,7 +288,7 @@ class GameEngine(threading.Thread):
             if player.alive and set(player.snake) & set_snake:
                 log.info('New snake was created on existing snake for %s', username)
                 # collision, put player back in queue
-                join_queue(game, player, at_front=True)
+                self.join_queue(player, at_front=True)
                 return state
 
         p = Player(username=username, snake=snake, alive=True, direction=direction)
