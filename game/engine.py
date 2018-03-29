@@ -97,25 +97,6 @@ class State:
         return dict_state
 
 
-def set_player_direction(game, username: str, direction: Direction):
-    log.info('Setting player direction: %s (%s)', username, direction.name)
-    redis: StrictRedis = cache.client.get_client()
-    hash_key = f'playerdirections.{game.pk}'
-    return redis.hset(hash_key, username, direction.name)
-
-
-def get_player_directions(game) -> Mapping[str, Direction]:
-    log.info('Getting player directions for game: %s', game)
-    redis: StrictRedis = cache.client.get_client()
-    hash_key = f'playerdirections.{game.pk}'
-    directions: Mapping[bytes, bytes] = redis.hgetall(hash_key)
-    return {
-        player.decode('utf8'): Direction[direction.decode('utf8')]
-        for player, direction in directions.items()
-    }
-    return directions
-
-
 def join_queue(game, username: str, at_front=False):
     log.info('Player %s joining queue (Front? %r) for game: %s', username, at_front, game)
     redis: StrictRedis = cache.client.get_client()
@@ -156,6 +137,8 @@ class GameEngine(threading.Thread):
         self.channel_layer = get_channel_layer()
         self.game = game
         self.state = State(board=Board(dimensions=Coords(*self.dimensions)))
+        self.direction_changes: Mapping[str, Direction] = {}
+        self.direction_lock = threading.Lock()
 
     def run(self):
         log.info('Starting engine loop')
@@ -178,7 +161,9 @@ class GameEngine(threading.Thread):
         self.game.tick += 1
         log.info('Tick %d for game %s', self.game.tick, self.game)
         state = self.state
-        movements = get_player_directions(self.game)
+        with self.direction_lock:
+            movements = self.direction_changes.copy()
+            self.direction_changes.clear()
         state = self.process_movements(self.game, state, movements)
         state = self.process_collisions(self.game, state)
         state = self.process_new_players(self.game, state)
@@ -186,6 +171,11 @@ class GameEngine(threading.Thread):
         state.board.tick = self.game.tick
         self.game.save()
         return state
+
+    def set_player_direction(self, player: str, direction: Direction):
+        log.info('Setting player direction: %s (%s)', player, direction.name)
+        with self.direction_lock:
+            self.direction_changes[player] = direction
 
     def process_movements(self, game, state: State, movements) -> State:
         log.info('Processing movements for game: %s', game)
