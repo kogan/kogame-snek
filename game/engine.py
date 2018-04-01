@@ -4,7 +4,7 @@ import threading
 import time
 from collections import OrderedDict, deque
 from enum import Enum, unique
-from typing import Mapping, Optional, Set
+from typing import Any, Mapping, Optional, Set, Tuple
 
 import attr
 from asgiref.sync import async_to_sync
@@ -30,7 +30,7 @@ class Coords:
         dx, dy = direction.value
         return Coords(self.x + dx, self.y + dy)
 
-    def render(self):
+    def render(self) -> Tuple[int, int]:
         return (self.x, self.y)
 
 
@@ -42,7 +42,7 @@ class Player:
     direction: Direction = attr.ib(validator=attr.validators.in_(Direction))
 
     @staticmethod
-    def from_dict(state_dict):
+    def from_dict(state_dict) -> 'Player':
         return Player(
             username=state_dict['username'],
             snake=deque(Coords(**part) for part in state_dict['snake']),
@@ -50,7 +50,7 @@ class Player:
             direction=Direction[state_dict['direction']],
         )
 
-    def render(self):
+    def render(self) -> Mapping[str, Any]:
         return {
             'username': self.username,
             'snake': [coords.render() for coords in self.snake],
@@ -58,7 +58,7 @@ class Player:
             'direction': self.direction.name,
         }
 
-    def move(self):
+    def move(self) -> None:
         """
         Updates the snake, moving the head in direction, and chopping the last
         block.
@@ -76,7 +76,7 @@ class Board:
     blocks: Set[Coords] = attr.ib(default=attr.Factory(set))
 
     @staticmethod
-    def from_dict(state_dict):
+    def from_dict(state_dict) -> 'Board':
         return Board(
             dimensions=Coords(**state_dict['dimensions']),
             tick=state_dict['tick'],
@@ -84,7 +84,7 @@ class Board:
             blocks={Coords(**block) for block in state_dict['blocks']},
         )
 
-    def render(self):
+    def render(self) -> Mapping[str, Any]:
         return {
             'dimensions': self.dimensions.render(),
             'tick': self.tick,
@@ -99,13 +99,13 @@ class State:
     players: Mapping[str, Player] = attr.ib(default=attr.Factory(dict))
 
     @staticmethod
-    def from_dict(state_dict):
+    def from_dict(state_dict) -> 'State':
         return State(
             board=Board.from_dict(state_dict['board']),
             players=[Player.from_dict(player) for player in state_dict['players']],
         )
 
-    def render(self):
+    def render(self) -> Mapping[str, Any]:
         return {
             'board': self.board.render(),
             'players': {username: p.render() for username, p in self.players.items()}
@@ -139,14 +139,14 @@ class GameEngine(threading.Thread):
         self.player_queue = OrderedDict()
         self.player_lock = threading.Lock()
 
-    def run(self):
+    def run(self) -> None:
         log.info('Starting engine loop')
         while True:
             self.state = self.tick()
             self.broadcast_state(self.state)
             time.sleep(self.tick_rate)
 
-    def broadcast_state(self, state: State):
+    def broadcast_state(self, state: State) -> None:
         state_json = state.render()
         async_to_sync(self.channel_layer.group_send)(
             self.group_name,
@@ -171,12 +171,12 @@ class GameEngine(threading.Thread):
         self.game.save()
         return state
 
-    def set_player_direction(self, player: str, direction: Direction):
+    def set_player_direction(self, player: str, direction: Direction) -> None:
         log.info('Setting player direction: %s (%s)', player, direction.name)
         with self.direction_lock:
             self.direction_changes[player] = direction
 
-    def join_queue(self, player: str, at_front=False):
+    def join_queue(self, player: str, at_front=False) -> None:
         log.info('Player %s joining queue (Front? %r)', player, at_front)
         with self.player_lock:
             self.player_queue[player] = True
