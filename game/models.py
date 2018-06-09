@@ -11,13 +11,11 @@ class Game(models.Model):
     tick = models.PositiveIntegerField(db_index=True)
 
     def __str__(self):
-        return 'Game<pk={0}, tick={1}, started={2}>'.format(
-            self.pk, self.tick, self.started
-        )
+        return "Game<pk={0}, tick={1}, started={2}>".format(self.pk, self.tick, self.started)
 
     @cached_property
-    def current_board(self) -> 'Board':
-        return self.board_set.order_by('-tick').first()
+    def current_board(self) -> "Board":
+        return self.board_set.order_by("-tick").first()
 
 
 class Board(models.Model):
@@ -26,6 +24,4 @@ class Board(models.Model):
     state = JSONField()
 
     def __str__(self):
-        return 'Board<id={0}, tick={1}>: {2}'.format(
-            self.pk, self.tick, self.game
-        )
+        return "Board<id={0}, tick={1}>: {2}".format(self.pk, self.tick, self.game)
