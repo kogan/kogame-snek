@@ -15,14 +15,14 @@ class AppLayout extends PureComponent {
     super(props)
     this.state = {
       board: {
-        dimensions: [50, 50],
+        dimensions: [24, 24],
         food: [[10, 10], [20, 20]],
         blocks: [],
         tick: 0,
       },
       players: {
-        'none@null.kgn.io': {
-          username: 'none@null.kgn.io',
+        noname: {
+          username: 'noname',
           snake: [
             [0, 0],
             [0, 1],
@@ -59,11 +59,32 @@ class AppLayout extends PureComponent {
         leaderBoard: message.leaderBoard ? message.leaderBoard : {},
       })
     }
+    const pnum = Math.floor((Math.random() * (100 - 1)) + 1)
+    const username = `Player-${pnum}`
+    chatSocket.onopen = () => this.sendJoinGame(username)
+  }
+
+  compnentWillUnmount() {
+    const { chatSocket } = this
+    chatSocket.close()
   }
 
   sendKeyUpdate = (updateObj) => {
     const { chatSocket } = this
-    chatSocket.send(JSON.stringify({ updateObj }))
+    const msg = {
+      type: 'direction',
+      msg: updateObj,
+    }
+    chatSocket.send(JSON.stringify(msg))
+  }
+
+  sendJoinGame = (username) => {
+    const { chatSocket } = this
+    const msg = {
+      type: 'join',
+      msg: { username },
+    }
+    chatSocket.send(JSON.stringify(msg))
   }
 
   render() {

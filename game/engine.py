@@ -26,7 +26,7 @@ class Coords:
     x: int = attr.ib(validator=attr.validators.instance_of(int))
     y: int = attr.ib(validator=attr.validators.instance_of(int))
 
-    def move(self, direction: Direction) -> 'Coords':
+    def move(self, direction: Direction) -> "Coords":
         dx, dy = direction.value
         return Coords(self.x + dx, self.y + dy)
 
@@ -42,20 +42,20 @@ class Player:
     direction: Direction = attr.ib(validator=attr.validators.in_(Direction))
 
     @staticmethod
-    def from_dict(state_dict) -> 'Player':
+    def from_dict(state_dict) -> "Player":
         return Player(
-            username=state_dict['username'],
-            snake=deque(Coords(**part) for part in state_dict['snake']),
-            alive=state_dict['alive'],
-            direction=Direction[state_dict['direction']],
+            username=state_dict["username"],
+            snake=deque(Coords(**part) for part in state_dict["snake"]),
+            alive=state_dict["alive"],
+            direction=Direction[state_dict["direction"]],
         )
 
     def render(self) -> Mapping[str, Any]:
         return {
-            'username': self.username,
-            'snake': [coords.render() for coords in self.snake],
-            'alive': self.alive,
-            'direction': self.direction.name,
+            "username": self.username,
+            "snake": [coords.render() for coords in self.snake],
+            "alive": self.alive,
+            "direction": self.direction.name,
         }
 
     def move(self) -> None:
@@ -76,39 +76,41 @@ class Board:
     blocks: Set[Coords] = attr.ib(default=attr.Factory(set))
 
     @staticmethod
-    def from_dict(state_dict) -> 'Board':
+    def from_dict(state_dict) -> "Board":
         return Board(
-            dimensions=Coords(**state_dict['dimensions']),
-            tick=state_dict['tick'],
-            food={Coords(**food) for food in state_dict['food']},
-            blocks={Coords(**block) for block in state_dict['blocks']},
+            dimensions=Coords(**state_dict["dimensions"]),
+            tick=state_dict["tick"],
+            food={Coords(**food) for food in state_dict["food"]},
+            blocks={Coords(**block) for block in state_dict["blocks"]},
         )
 
     def render(self) -> Mapping[str, Any]:
         return {
-            'dimensions': self.dimensions.render(),
-            'tick': self.tick,
-            'food': [f.render() for f in self.food],
-            'blocks': [b.render() for b in self.blocks],
+            "dimensions": self.dimensions.render(),
+            "tick": self.tick,
+            "food": [f.render() for f in self.food],
+            "blocks": [b.render() for b in self.blocks],
         }
 
 
 @attr.s
 class State:
-    board: Board = attr.ib(default=attr.Factory(Board), validator=attr.validators.instance_of(Board))
+    board: Board = attr.ib(
+        default=attr.Factory(Board), validator=attr.validators.instance_of(Board)
+    )
     players: Mapping[str, Player] = attr.ib(default=attr.Factory(dict))
 
     @staticmethod
-    def from_dict(state_dict) -> 'State':
+    def from_dict(state_dict) -> "State":
         return State(
-            board=Board.from_dict(state_dict['board']),
-            players=[Player.from_dict(player) for player in state_dict['players']],
+            board=Board.from_dict(state_dict["board"]),
+            players=[Player.from_dict(player) for player in state_dict["players"]],
         )
 
     def render(self) -> Mapping[str, Any]:
         return {
-            'board': self.board.render(),
-            'players': {username: p.render() for username, p in self.players.items()}
+            "board": self.board.render(),
+            "players": {username: p.render() for username, p in self.players.items()},
         }
 
 
@@ -120,16 +122,12 @@ class GameEngine(threading.Thread):
         (Direction.RIGHT, Direction.LEFT),
     }
 
-    dimensions = [30, 30]
+    dimensions = [24, 24]
     tick_rate = 0.2
 
     def __init__(self, game, group_name, **kwargs):
-        log.info('Init GameEngine...')
-        super(GameEngine, self).__init__(
-            daemon=True,
-            name='GameEngine',
-            **kwargs
-        )
+        log.info("Init GameEngine...")
+        super(GameEngine, self).__init__(daemon=True, name="GameEngine", **kwargs)
         self.group_name = group_name
         self.channel_layer = get_channel_layer()
         self.game = game
@@ -140,7 +138,7 @@ class GameEngine(threading.Thread):
         self.player_lock = threading.Lock()
 
     def run(self) -> None:
-        log.info('Starting engine loop')
+        log.info("Starting engine loop")
         while True:
             self.state = self.tick()
             self.broadcast_state(self.state)
@@ -149,16 +147,12 @@ class GameEngine(threading.Thread):
     def broadcast_state(self, state: State) -> None:
         state_json = state.render()
         async_to_sync(self.channel_layer.group_send)(
-            self.group_name,
-            {
-                'type': 'game_update',
-                'state': state_json,
-            }
+            self.group_name, {"type": "game_update", "state": state_json}
         )
 
     def tick(self) -> State:
         self.game.tick += 1
-        log.info('Tick %d for game %s', self.game.tick, self.game)
+        log.info("Tick %d for game %s", self.game.tick, self.game)
         state = self.state
         with self.direction_lock:
             movements = self.direction_changes.copy()
@@ -172,19 +166,22 @@ class GameEngine(threading.Thread):
         return state
 
     def set_player_direction(self, player: str, direction: Direction) -> None:
-        log.info('Setting player direction: %s (%s)', player, direction.name)
+        log.info("Setting player direction: %s (%s)", player, direction.name)
         with self.direction_lock:
             self.direction_changes[player] = direction
 
     def join_queue(self, player: str, at_front=False) -> None:
-        log.info('Player %s joining queue (Front? %r)', player, at_front)
+        log.info("Player %s joining queue (Front? %r)", player, at_front)
+        if player in self.state.players and self.state.players[player].alive:
+            log.info("Player %s is already in a game", player)
+            return
         with self.player_lock:
             self.player_queue[player] = True
             if at_front:
                 self.player_queue.move_to_end(player, last=False)
 
     def get_queued_player(self) -> Optional[str]:
-        log.info('Getting next player in queue')
+        log.info("Getting next player in queue")
         with self.player_lock:
             try:
                 player, _ = self.player_queue.popitem(last=False)
@@ -194,7 +191,7 @@ class GameEngine(threading.Thread):
                 return None
 
     def process_movements(self, game, state: State, movements) -> State:
-        log.info('Processing movements for game: %s', game)
+        log.info("Processing movements for game: %s", game)
         # Process movement updates for each player
         for player in state.players.values():
 
@@ -209,7 +206,9 @@ class GameEngine(threading.Thread):
                 if new_direction == player.direction:
                     pass
                 elif (new_direction, player.direction) in self.INVALID_MOVES:
-                    log.info("Invalid movement selected for Player: %s in %s", player.username, game)
+                    log.info(
+                        "Invalid movement selected for Player: %s in %s", player.username, game
+                    )
                 else:
                     player.direction = new_direction
 
@@ -219,7 +218,7 @@ class GameEngine(threading.Thread):
         return state
 
     def process_collisions(self, game, state: State) -> State:
-        log.info('Processing collisions for game: %s', game)
+        log.info("Processing collisions for game: %s", game)
         for player in state.players.values():
             if not player.alive:
                 continue
@@ -228,8 +227,10 @@ class GameEngine(threading.Thread):
 
             # wall collision
             if (
-                head.x < 0 or head.x >= self.dimensions[0] or
-                head.y < 0 or head.y >= self.dimensions[1]
+                head.x < 0
+                or head.x >= self.dimensions[0]
+                or head.y < 0
+                or head.y >= self.dimensions[1]
             ):
                 log.info("Player %s hit a wall in game: %s", player.username, game)
                 player.alive = False
@@ -238,7 +239,9 @@ class GameEngine(threading.Thread):
             other_players = [p for p in state.players.values() if p != player and p.alive]
             for other in other_players:
                 if head in other.snake:
-                    log.info("Player %s hit Player %s in game: %s", player.username, other.username, game)
+                    log.info(
+                        "Player %s hit Player %s in game: %s", player.username, other.username, game
+                    )
                     player.alive = False
 
             # self collision
@@ -271,23 +274,20 @@ class GameEngine(threading.Thread):
         return state
 
     def process_new_players(self, game, state: State) -> State:
-        log.info('Processing new players for game: %s', game)
+        log.info("Processing new players for game: %s", game)
         username = self.get_queued_player()
         if not username:
             return state
 
         player = state.players.pop(username, None)
         if player:
-            log.info('Player %s is rejoining. (Alive? %r)', username, player.alive)
+            log.info("Player %s is rejoining. (Alive? %r)", username, player.alive)
 
-        log.info('Trying to add new snake for %s', username)
+        log.info("Trying to add new snake for %s", username)
 
         # generate random position and add to state
         dims = self.dimensions
-        c = Coords(
-            x=random.randint(0, dims[0] - 1),
-            y=random.randint(0, dims[1] - 1)
-        )
+        c = Coords(x=random.randint(0, dims[0] - 1), y=random.randint(0, dims[1] - 1))
         # direct it away from the closest walls, and stretch out that direction 3 squares
         x_mid, y_mid = dims[0] // 2, dims[1] // 2
         x_dir = Direction.LEFT if c.x > x_mid else Direction.RIGHT
@@ -302,18 +302,18 @@ class GameEngine(threading.Thread):
         set_snake = set(snake)
         for player in state.players.values():
             if player.alive and set(player.snake) & set_snake:
-                log.info('New snake was created on existing snake for %s', username)
+                log.info("New snake was created on existing snake for %s", username)
                 # collision, put player back in queue
                 self.join_queue(player, at_front=True)
                 return state
 
         p = Player(username=username, snake=deque(snake), alive=True, direction=direction)
         state.players[username] = p
-        log.info('New snake added for %s', username)
+        log.info("New snake added for %s", username)
         return state
 
     def add_food(self, game, state: State) -> State:
-        log.info('Adding food to game: %s', game)
+        log.info("Adding food to game: %s", game)
         # 1 less food than num players, but at least 1 for testing (0 for leaderboards)
         if len(state.board.food) < max(len(state.players) - 1, 1):
             available = set()
