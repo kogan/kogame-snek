@@ -6,11 +6,8 @@ docker-compose kill
 # clean up
 docker-compose rm -fv
 
-docker-compose build --no-cache --force-rm kogame
+docker-compose build kogame
 docker-compose run --rm kogame ./manage.py migrate
-
-echo "Please create a super user."
-docker-compose run --rm kogame ./manage.py createsuperuser
 
 echo "Starting app server"
 docker-compose up -d kogame

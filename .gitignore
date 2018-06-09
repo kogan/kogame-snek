@@ -1,3 +1,5 @@
+.pytest_cache/
+*.sqlite
 dist
 node_modules
 coverage

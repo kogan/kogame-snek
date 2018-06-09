@@ -2,6 +2,7 @@ import logging
 import random
 import threading
 import time
+import uuid
 from collections import OrderedDict, deque
 from enum import Enum, unique
 from typing import Any, Mapping, Optional, Set, Tuple
@@ -124,13 +125,15 @@ class GameEngine(threading.Thread):
 
     dimensions = [24, 24]
     tick_rate = 0.2
+    growth_factor = 2
 
-    def __init__(self, game, group_name, **kwargs):
+    def __init__(self, group_name, **kwargs):
         log.info("Init GameEngine...")
         super(GameEngine, self).__init__(daemon=True, name="GameEngine", **kwargs)
+        self.tick_num = 0
+        self.name = uuid.uuid4()
         self.group_name = group_name
         self.channel_layer = get_channel_layer()
-        self.game = game
         self.state = State(board=Board(dimensions=Coords(*self.dimensions)))
         self.direction_changes: Mapping[str, Direction] = {}
         self.direction_lock = threading.Lock()
@@ -151,19 +154,18 @@ class GameEngine(threading.Thread):
         )
 
     def tick(self) -> State:
-        self.game.tick += 1
-        log.info("Tick %d for game %s", self.game.tick, self.game)
+        self.tick_num += 1
+        log.info("Tick %d for game %s", self.tick_num, self.name)
         state = self.state
         with self.direction_lock:
             movements = self.direction_changes.copy()
             self.direction_changes.clear()
-        state = self.remove_dead(self.game, state)
-        state = self.process_movements(self.game, state, movements)
-        state = self.process_collisions(self.game, state)
-        state = self.process_new_players(self.game, state)
-        state = self.add_food(self.game, state)
-        state.board.tick = self.game.tick
-        self.game.save()
+        state = self.remove_dead(state)
+        state = self.process_movements(state, movements)
+        state = self.process_collisions(state)
+        state = self.process_new_players(state)
+        state = self.add_food(state)
+        state.board.tick = self.tick_num
         return state
 
     def set_player_direction(self, player: str, direction: Direction) -> None:
@@ -191,7 +193,7 @@ class GameEngine(threading.Thread):
                 # no player queued
                 return None
 
-    def remove_dead(self, game, state: State) -> State:
+    def remove_dead(self, state: State) -> State:
         log.info("Removing dead players")
         dead = [name for name, player in state.players.items() if not player.alive]
         for name in dead:
@@ -199,8 +201,8 @@ class GameEngine(threading.Thread):
             state.players.pop(name)
         return state
 
-    def process_movements(self, game, state: State, movements) -> State:
-        log.info("Processing movements for game: %s", game)
+    def process_movements(self, state: State, movements) -> State:
+        log.info("Processing movements for game: %s", self.name)
         # Process movement updates for each player
         for player in state.players.values():
 
@@ -216,7 +218,7 @@ class GameEngine(threading.Thread):
                     pass
                 elif (new_direction, player.direction) in self.INVALID_MOVES:
                     log.info(
-                        "Invalid movement selected for Player: %s in %s", player.username, game
+                        "Invalid movement selected for Player: %s in %s", player.username, self.name
                     )
                 else:
                     player.direction = new_direction
@@ -226,8 +228,8 @@ class GameEngine(threading.Thread):
 
         return state
 
-    def process_collisions(self, game, state: State) -> State:
-        log.info("Processing collisions for game: %s", game)
+    def process_collisions(self, state: State) -> State:
+        log.info("Processing collisions for game: %s", self.name)
         for player in state.players.values():
             if not player.alive:
                 continue
@@ -241,7 +243,7 @@ class GameEngine(threading.Thread):
                 or head.y < 0
                 or head.y >= self.dimensions[1]
             ):
-                log.info("Player %s hit a wall in game: %s", player.username, game)
+                log.info("Player %s hit a wall in game: %s", player.username, self.name)
                 player.alive = False
 
             # other player collision
@@ -249,7 +251,10 @@ class GameEngine(threading.Thread):
             for other in other_players:
                 if head in other.snake:
                     log.info(
-                        "Player %s hit Player %s in game: %s", player.username, other.username, game
+                        "Player %s hit Player %s in game: %s",
+                        player.username,
+                        other.username,
+                        self.name,
                     )
                     player.alive = False
 
@@ -257,7 +262,7 @@ class GameEngine(threading.Thread):
             pos = 1
             while pos < len(player.snake):
                 if player.snake[pos] == head:
-                    log.info("Player %s in %s hit self", player.username, game)
+                    log.info("Player %s in %s hit self", player.username, self.name)
                     player.alive = False
                 pos += 1
 
@@ -272,18 +277,20 @@ class GameEngine(threading.Thread):
             # food
             if head in state.board.food:
                 # Grow our tail by growth_factor in the same block as our tail
-                for x in range(game.growth_factor):
+                for x in range(self.growth_factor):
                     player.snake.append(player.snake[-1])
 
-                log.info("Player %s ate food at pos %s in game: %s", player.username, head, game)
+                log.info(
+                    "Player %s ate food at pos %s in game: %s", player.username, head, self.name
+                )
 
                 # remove food
                 state.board.food.remove(head)
 
         return state
 
-    def process_new_players(self, game, state: State) -> State:
-        log.info("Processing new players for game: %s", game)
+    def process_new_players(self, state: State) -> State:
+        log.info("Processing new players for game: %s", self.name)
         username = self.get_queued_player()
         if not username:
             return state
@@ -321,8 +328,8 @@ class GameEngine(threading.Thread):
         log.info("New snake added for %s", username)
         return state
 
-    def add_food(self, game, state: State) -> State:
-        log.info("Adding food to game: %s", game)
+    def add_food(self, state: State) -> State:
+        log.info("Adding food to game: %s", self.name)
         # 1 less food than num players, but at least 1 for testing (0 for leaderboards)
         if len(state.board.food) < max(len(state.players) - 1, 1):
             available = set()

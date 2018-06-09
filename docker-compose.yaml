@@ -4,10 +4,6 @@ volumes:
   postgres_data_dev: {}
 
 services:
-  postgres:
-    image: postgres:10
-    volumes:
-      - postgres_data_dev:/var/lib/postgresql/data
 
   redis:
     image: redis:4
@@ -19,23 +15,11 @@ services:
     command: python /app/manage.py runserver 0.0.0.0:8001
     user: "1000"
     depends_on:
-      - postgres
+      - redis
     volumes:
       - .:/app
       - ~/.ipython:/home/django/.ipython
     ports:
       - "0.0.0.0:8001:8001"
     links:
-      - postgres
-      - redis
-
-  jenkins:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    user: "1000"
-    depends_on:
-      - postgres
-    links:
-      - postgres
       - redis
