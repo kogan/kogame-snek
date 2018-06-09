@@ -17,7 +17,7 @@ class SnekContainer extends PureComponent {
   static defaultProps = {
     cellSize: 36,
     board: {
-      dimensions: [50, 50],
+      dimensions: [24, 24],
       food: [[10, 10], [20, 20]],
       blocks: [],
       tick: 1,
@@ -99,6 +99,8 @@ class SnekContainer extends PureComponent {
       const player = players[playerName]
       for (let snakePos = 0; snakePos < player.snake.length; snakePos += 1) {
         const [snakeX, snakeY] = player.snake[snakePos]
+        if (snakeX < 0 || snakeX >= dimensions[0]) { continue }
+        if (snakeY < 0 || snakeY >= dimensions[1]) { continue }
         if (snakePos === 0) {
           // TODO: for some reason this is backward
           cells[snakeY][snakeX] = { cellType: 'snake', bodyType: 'tail' }
