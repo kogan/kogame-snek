@@ -30,6 +30,8 @@ the page will reconnect you as a new player.
 
 # TODO
 
+- Landing page / Description / Controls
+- Favicon
 - Custom usernames and Join/Rejoin button, rather than autojoin
 - Death messages
 - Send errors back to client (can't join, too full, etc)
@@ -38,3 +40,4 @@ the page will reconnect you as a new player.
 - Current players in game
 - Distinguish between current player and other players
 - Better snake icons/tiles
+- Spawn rocks onto the map
