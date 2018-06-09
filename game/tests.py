@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from .models import Game
 from .engine import Direction, get_player_directions, set_player_direction
+from .models import Game
 
 
 class PlayerTests(TestCase):
