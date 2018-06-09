@@ -157,6 +157,7 @@ class GameEngine(threading.Thread):
         with self.direction_lock:
             movements = self.direction_changes.copy()
             self.direction_changes.clear()
+        state = self.remove_dead(self.game, state)
         state = self.process_movements(self.game, state, movements)
         state = self.process_collisions(self.game, state)
         state = self.process_new_players(self.game, state)
@@ -189,6 +190,14 @@ class GameEngine(threading.Thread):
             except KeyError:
                 # no player queued
                 return None
+
+    def remove_dead(self, game, state: State) -> State:
+        log.info("Removing dead players")
+        dead = [name for name, player in state.players.items() if not player.alive]
+        for name in dead:
+            log.info("Removing %s from the game", name)
+            state.players.pop(name)
+        return state
 
     def process_movements(self, game, state: State, movements) -> State:
         log.info("Processing movements for game: %s", game)
@@ -327,7 +336,7 @@ class GameEngine(threading.Thread):
                     available.discard(pos)
 
             for food in state.board.food:
-                available.remove(food)
+                available.discard(food)
 
             pos = random.choice(list(available))
 

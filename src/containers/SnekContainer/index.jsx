@@ -112,9 +112,9 @@ class SnekContainer extends PureComponent {
       }
     })
 
-    for (let row = 0; row < numRows; row += 1) {
-      for (let col = 0; col < numCols; col += 1) {
-        const cellObject = cells[row][col]
+    for (let col = 0; col < numCols; col += 1) {
+      for (let row = 0; row < numRows; row += 1) {
+        const cellObject = cells[col][row]
         renderedGridCells.push(<GridCell
           key={Math.random().toString()}
           size={cellSize}
