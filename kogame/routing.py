@@ -1,6 +1,7 @@
 from channels.routing import ChannelNameRouter, ProtocolTypeRouter, URLRouter
 from channels.sessions import SessionMiddlewareStack
 from django.conf.urls import url
+
 from game.consumers import GameConsumer, PlayerConsumer
 
 application = ProtocolTypeRouter({
