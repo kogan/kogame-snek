@@ -178,6 +178,11 @@ class GameEngine(threading.Thread):
         if player in self.state.players and self.state.players[player].alive:
             log.info("Player %s is already in a game", player)
             return
+
+        if len(self.player_queue) > 30:
+            log.warning("Too many players are queued")
+            return
+
         with self.player_lock:
             self.player_queue[player] = True
             if at_front:

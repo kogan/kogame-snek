@@ -38,7 +38,9 @@
   },
   "scripts": {
     "dev": "webpack --watch --mode development",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "build:release": "webpack --mode production --config=webpack.config.js --progress --optimize-minimize",
+    "heroku-postbuild": "webpack --mode production --config=webpack.config.js --optimize-minimize"
   },
   "repository": {
     "type": "git",

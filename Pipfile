@@ -32,6 +32,7 @@ channels_redis = "*"
 service_identity = "*"
 django-redis = "*"
 attrs = "*"
+django-environ = "*"
 
 [requires]
 python_version = "3.6"

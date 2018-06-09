@@ -1,0 +1,2 @@
+Webpack will build static content and publish here, ready to be picked up
+by collectstatic.

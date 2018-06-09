@@ -23,3 +23,6 @@ services:
       - "0.0.0.0:8001:8001"
     links:
       - redis
+    environment:
+      - DEBUG=on
+      - SECRET_KEY=w*9*at=ow00tgelycy!dr%*b*6&oosj++75s1-0jdb^qyf-ei(
