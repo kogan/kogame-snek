@@ -43,8 +43,8 @@ class AppLayout extends PureComponent {
     }
     const hostName = window.location.host
 
-    // TODO MODIFY THIS ENDPOINT
-    this.chatSocket = new WebSocket(`ws://${hostName}/ws/game/`)
+    const protocol = window.location.protocol.match(/^https/) ? 'wss' : 'ws'
+    this.chatSocket = new WebSocket(`${protocol}://${hostName}/ws/game/`)
   }
 
   componentDidMount() {
