@@ -49,9 +49,19 @@ class AppLayout extends PureComponent {
 
   componentDidMount() {
     const { chatSocket } = this
+
+    const pnum = Math.floor((Math.random() * (100 - 1)) + 1)
+    const username = `Player-${pnum}`
+    chatSocket.onopen = () => this.sendJoinGame(username)
+
     chatSocket.onmessage = (e) => {
       const data = JSON.parse(e.data)
       const message = data
+
+      // TODO: add a join button with textbox for username
+      if (!(username in message.players)) {
+        this.sendJoinGame(username)
+      }
 
       this.setState({
         players: message.players ? message.players : [],
@@ -59,9 +69,6 @@ class AppLayout extends PureComponent {
         leaderBoard: message.leaderBoard ? message.leaderBoard : {},
       })
     }
-    const pnum = Math.floor((Math.random() * (100 - 1)) + 1)
-    const username = `Player-${pnum}`
-    chatSocket.onopen = () => this.sendJoinGame(username)
   }
 
   compnentWillUnmount() {
