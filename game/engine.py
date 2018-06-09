@@ -325,7 +325,7 @@ class GameEngine(threading.Thread):
             if player.alive and set(player.snake) & set_snake:
                 log.info("New snake was created on existing snake for %s", username)
                 # collision, put player back in queue
-                self.join_queue(player, at_front=True)
+                self.join_queue(username, at_front=True)
                 return state
 
         p = Player(username=username, snake=deque(snake), alive=True, direction=direction)

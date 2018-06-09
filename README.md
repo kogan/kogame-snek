@@ -41,3 +41,4 @@ the page will reconnect you as a new player.
 - Distinguish between current player and other players
 - Better snake icons/tiles
 - Spawn rocks onto the map
+- Look into using canvas rather than DOM nodes for performance reasons
