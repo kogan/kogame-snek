@@ -55,16 +55,6 @@ node {
     }
   }
 
-  stage('unittest') {
-    withGithubNotify('unittest') {
-      timeout(time: 2, unit: 'MINUTES') {
-        withEnv(["COMPOSE_PROJECT_NAME=${projectName}"]) {
-          sh 'docker-compose run --rm jenkins /app/manage.py test'
-        }
-      }
-    }
-  }
-
   stage('eslint') {
     withGithubNotify('eslint') {
       timeout(time: 5, unit: 'MINUTES') {
