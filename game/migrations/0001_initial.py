@@ -9,29 +9,38 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Board',
+            name="Board",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('tick', models.PositiveIntegerField()),
-                ('state', django.contrib.postgres.fields.jsonb.JSONField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("tick", models.PositiveIntegerField()),
+                ("state", django.contrib.postgres.fields.jsonb.JSONField()),
             ],
         ),
         migrations.CreateModel(
-            name='Game',
+            name="Game",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('started', models.DateTimeField(auto_now_add=True)),
-                ('tick', models.PositiveIntegerField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("started", models.DateTimeField(auto_now_add=True)),
+                ("tick", models.PositiveIntegerField()),
             ],
         ),
         migrations.AddField(
-            model_name='board',
-            name='game',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='game.Game'),
+            model_name="board",
+            name="game",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="game.Game"),
         ),
     ]
