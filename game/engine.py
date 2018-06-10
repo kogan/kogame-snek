@@ -251,6 +251,9 @@ class GameEngine(threading.Thread):
                 log.info("Player %s hit a wall in game: %s", player.username, self.name)
                 player.alive = False
 
+            if not player.alive:
+                continue
+
             # other player collision
             other_players = [p for p in state.players.values() if p != player and p.alive]
             for other in other_players:
@@ -263,21 +266,20 @@ class GameEngine(threading.Thread):
                     )
                     player.alive = False
 
+            if not player.alive:
+                continue
+
             # self collision
             pos = 1
             while pos < len(player.snake):
                 if player.snake[pos] == head:
                     log.info("Player %s in %s hit self", player.username, self.name)
                     player.alive = False
+                    break
                 pos += 1
 
-            # blocks
-            # blocks = {(x, y): username for (x, y, username) in board.state['blocks']}
-            # if tuple(head) in blocks:
-            #    log.info("Player %s hit a block at %s from player %s",
-            #              player['username'], head, blocks[head])
-            #    player['alive'] = False
-            #    collisions.append("%s hit a block" % player['username'])
+            if not player.alive:
+                continue
 
             # food
             if head in state.board.food:
