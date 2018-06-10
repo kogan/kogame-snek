@@ -116,7 +116,7 @@ class SnekContainer extends PureComponent {
       for (let row = 0; row < numRows; row += 1) {
         const cellObject = cells[col][row]
         renderedGridCells.push(<GridCell
-          key={Math.random().toString()}
+          key={`${col},${row}`}
           size={cellSize}
           cellType={cellObject.cellType}
           bodyType={cellObject.bodyType}
