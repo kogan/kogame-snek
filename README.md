@@ -1,5 +1,8 @@
 # Kogame - Snek
 
+[![Build Status](https://travis-ci.org/kogan/kogame-snek.svg?branch=master)](https://travis-ci.org/kogan/kogame-snek)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+
 Kogame - pronounced with 3 syllables (Koh-gah-mee) - is a Django Channels real-time or turn-based game platform.
 
 Snek is a multiplayer version of the famous game `snake`. It uses django and channels
