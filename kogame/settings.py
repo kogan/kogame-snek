@@ -6,7 +6,7 @@ root = environ.Path(__file__) - 2
 env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, "w*9*at=ow00tgelycy!dr%*b*6&oosj++75s1-0jdb^qyf-ei("),
-    REDIS_URL=(str, "redis://redis:6379")
+    REDIS_URL=(str, "redis://redis:6379"),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -60,11 +60,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "kogame.wsgi.application"
 ASGI_APPLICATION = "kogame.routing.application"
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
-DATABASES = {
-    'default': env.db("DATABASE_URL", default="sqlite:///localdb.sqlite")
-}
+DATABASES = {"default": env.db("DATABASE_URL", default="sqlite:///localdb.sqlite")}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -100,7 +98,7 @@ LOGIN_REDIRECT_URL = "/"
 STATIC_ROOT = root("staticfiles")
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [root("static")]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CHANNEL_LAYERS = {
     "default": {
